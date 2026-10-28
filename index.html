@@ -2,37 +2,8 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trump Premium - FINAL PERFECT FIX</title>
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
-<script>
-window._ensurePeer = function(cb){
-  if(typeof Peer !== 'undefined'){ cb(); return; }
-  var urls=[
-    'https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js',
-    'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js'
-  ];
-  var i=0;
-  function tryNext(){
-    if(typeof Peer !== 'undefined'){ cb(); return; }
-    if(i>=urls.length){
-      var ws=document.getElementById('waitingStatus');
-      if(ws) ws.innerHTML='❌ Net slow - Reload karo';
-      var ps=document.getElementById('peerStatus');
-      if(ps) ps.innerHTML='❌ PeerJS failed - Reload karo';
-      return;
-    }
-    var s=document.createElement('script');
-    s.src=urls[i++]+'?v='+Date.now();
-    s.onload=function(){ setTimeout(function(){ if(typeof Peer!=='undefined') cb(); else tryNext(); },400); };
-    s.onerror=function(){ tryNext(); };
-    document.head.appendChild(s);
-  }
-  tryNext();
-};
-</script>
+<title>Trump Premium - FINAL LOCAL</title>
+<script src="./peerjs.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',system-ui}
@@ -87,7 +58,7 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <div id="emojiBar">
 <button onclick="sendEmoji('😂')">😂</button><button onclick="sendEmoji('🥳')">🥳</button><button onclick="sendEmoji('😎')">😎</button><button onclick="sendEmoji('❤️')">❤️</button><button onclick="sendEmoji('😡')">😡</button><button onclick="sendEmoji('😟')">😟</button>
 </div>
-<div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium - FINAL</h3><p style="font-size:11px;color:#ffe082;margin:6px 0">TURN servers added - Friends 100% join honge</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID" style="flex:1"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div><div id="peerStatus" style="font-size:10px;color:#0f0;margin-top:6px">Triple CDN + TURN Ready ✅</div></div></div>
+<div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium - FINAL</h3><p style="font-size:11px;color:#ffe082;margin:6px 0">Local PeerJS - 100% Join</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID" style="flex:1"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div><div id="peerStatus" style="font-size:10px;color:#0f0;margin-top:6px">Local PeerJS + TURN Ready ✅</div></div></div>
 <div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">🟢 Room Ban Gaya</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div><div class="row"><button class="btn by" onclick="copyRoom()">COPY</button><button class="btn bb" onclick="shareWA()">WA Share</button></div><div id="lobbyPlayers" style="margin:10px 0;text-align:left"></div><div class="row"><button class="btn bg" onclick="addBotToLobby()">+ Bot Add</button><button class="btn by" onclick="hostStartFromLobby()">▶ START</button></div><div class="row"><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
 <div id="waitingLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">⏳ Joined!</h3><div id="waitingRoomCode" class="lobbyCode">TRUMP1234</div><div id="waitingPlayers" style="margin:10px 0;text-align:left"></div><div style="font-size:12px;color:#0f0" id="waitingStatus">Host START ka wait karo</div><div class="row" style="margin-top:10px"><button class="btn bb" onclick="retryJoin()">🔄 Retry</button><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
 <div id="bidModal" class="modal hidden"><div class="modalBox"><h3 id="bidTitle">Bid</h3><div id="bidRoundInfo"></div><div id="bidTrumpInfo"></div><div id="bidCards" class="row"></div><div id="bidBtns"></div><div id="trumpBtns"></div></div></div>
@@ -118,7 +89,7 @@ function renderLobby(){let html='';for(let i=0;i<4;i++){let p=players[i];if(p){l
 function directBotStart(){myName=document.getElementById('myName').value.trim()||'Player';roomId='TRUMP'+(rnd(9000)+1000);document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.add('hidden');document.getElementById('waitingLobby').classList.add('hidden');isHost=true;isBotGame=true;gameStarted=true;players=[myName,'B','C','D'];hostStartGame();}
 function createRoom(){
  myName=document.getElementById('myName').value.trim();if(!myName){alert('Naam likho');return;}
- if(typeof Peer==='undefined'){ window._ensurePeer(function(){ createRoom(); }); document.getElementById('peerStatus').innerText='⏳ PeerJS load ho raha... 2 sec'; return; }
+ if(typeof Peer==='undefined'){alert('peerjs.min.js file nahi mili - pehle Add file karke banao');return;}
  roomId='TRUMP'+(rnd(9000)+1000);
  document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;
  players=[myName];renderLobby();
@@ -126,7 +97,7 @@ function createRoom(){
  isHost=true;isBotGame=false;gameStarted=false;
  try{
   peer=new Peer(roomId,{config:{iceServers:ICE_SERVERS}});
-  peer.on('open',()=>{document.getElementById('phase').innerText='Room Online: '+roomId;showToast('✅ Room Online: '+roomId+' - Dosto ko bhejo');});
+  peer.on('open',()=>{document.getElementById('phase').innerText='Room Online: '+roomId;showToast('✅ Room Online: '+roomId);});
   peer.on('connection',c=>{
     c.on('open',()=>{
       c.on('data',d=>handleData(d,c));
@@ -135,12 +106,12 @@ function createRoom(){
       try{c.send({type:'lobby',players:players,roomId:roomId});}catch(e){}
     });
   });
-  peer.on('error',(err)=>{if(err.type==='unavailable-id'){roomId='TRUMP'+(rnd(90000)+1000);createRoom();}else{document.getElementById('phase').innerText='Room: '+roomId;}});
+  peer.on('error',(err)=>{if(err.type==='unavailable-id'){roomId='TRUMP'+(rnd(90000)+1000);createRoom();}});
  }catch(e){showToast('Error: '+e.message);}
 }
 function joinRoom(){
  myName=document.getElementById('myName').value.trim();if(!myName){alert('Naam likho');return;}
- if(typeof Peer==='undefined'){ window._ensurePeer(function(){ joinRoom(); }); document.getElementById('waitingStatus').innerText='⏳ PeerJS load ho raha... 2 sec'; return; }
+ if(typeof Peer==='undefined'){alert('peerjs.min.js nahi mila');return;}
  let jid=document.getElementById('joinId').value.trim().toUpperCase();if(!jid){alert('Room ID likho');return;}
  roomId=jid;
  document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;
