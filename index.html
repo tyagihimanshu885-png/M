@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trump Premium - FINAL FIXED NoSetup</title>
+<title>Trump Premium - FINAL ULTRA NoSetup</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
@@ -120,9 +120,9 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <button onclick="sendEmoji('😡')">😡</button>
 <button onclick="sendEmoji('😟')">😟</button>
 </div>
-<div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium - FINAL NoSetup</h3><p style="font-size:11px;color:#ffe082;margin:6px 0">5-5 baant ke +1 se kaato, 8-8 baant ke 13 se bid - trump1234 -> TRUMP1234 auto!</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID (small/capital dono chalega)" style="flex:1;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div></div></div>
-<div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">🟢 Room Ban Gaya - CardGames.io Style</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div><div class="row"><button class="btn by" onclick="copyRoom()">COPY</button><button class="btn bb" onclick="shareWA()">WA Share</button></div><div id="lobbyPlayers" style="margin:10px 0;text-align:left"></div><div class="row"><button class="btn bg" onclick="addBotToLobby()">+ Bot Add</button><button class="btn by" onclick="hostStartFromLobby()">▶ START</button></div><div class="row"><button class="btn br" onclick="leaveLobby()">Leave</button></div><div style="font-size:10px;color:#00e676;margin-top:8px">✅ TURN Server ON - Jio/Airtel dono pe chalega!</div></div></div>
-<div id="waitingLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">⏳ Joined!</h3><div id="waitingRoomCode" class="lobbyCode">TRUMP1234</div><div id="waitingPlayers" style="margin:10px 0;text-align:left"></div><div id="waitingStatus" style="font-size:12px;color:#0f0">✅ Connected! Host START ka wait karo</div><div class="row" style="margin-top:10px"><button class="btn by" id="retryBtn" onclick="retryJoin()" style="display:none">🔄 RETRY JOIN</button><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
+<div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium - FINAL ULTRA</h3><p style="font-size:11px;color:#ffe082;margin:6px 0">5-5 baant ke +1 se kaato, 8-8 baant ke 13 se bid - trump1234 -> TRUMP1234 auto! Jio Fix!</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID" style="flex:1;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div><p style="font-size:9px;color:#aaa;margin-top:6px">Tip: Chrome me kholo, WhatsApp browser me nahi!</p></div></div>
+<div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">🟢 Room Ban Gaya</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div><div class="row"><button class="btn by" onclick="copyRoom()">COPY</button><button class="btn bb" onclick="shareWA()">WA Share</button></div><div id="lobbyPlayers" style="margin:10px 0;text-align:left"></div><div class="row"><button class="btn bg" onclick="addBotToLobby()">+ Bot Add</button><button class="btn by" onclick="hostStartFromLobby()">▶ START</button></div><div class="row"><button class="btn br" onclick="leaveLobby()">Leave</button></div><div style="font-size:10px;color:#00e676;margin-top:8px">✅ Jio/Airtel Fix ON - 4x Auto Retry!</div></div></div>
+<div id="waitingLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">⏳ Joined! (Guest)</h3><div id="waitingRoomCode" class="lobbyCode">TRUMP1234</div><div id="waitingPlayers" style="margin:10px 0;text-align:left"></div><div id="waitingStatus" style="font-size:12px;color:#0f0">✅ Connected! Host START ka wait karo</div><div class="row" style="margin-top:10px"><button class="btn by" id="retryBtn" onclick="retryJoin()" style="display:none">🔄 RETRY JOIN</button><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
 <div id="bidModal" class="modal hidden"><div class="modalBox"><h3 id="bidTitle">Bid</h3><div id="bidRoundInfo" style="margin:4px 0;font-size:11px;color:#ffe082"></div><div id="bidTrumpInfo" style="margin:6px 0;font-size:13px;font-weight:800;color:#ffca28"></div><div id="bidCards" class="row" style="margin:8px 0"></div><div id="bidBtns"></div><div id="trumpBtns" style="margin-top:8px"></div></div></div>
 <div id="overcallModal" class="modal hidden"><div class="modalBox"><h3 id="overcallTitle">Kaatna?</h3><div id="overcallInfo" style="margin:6px 0;font-size:12px;color:#ffe082"></div><div id="overcallCards" class="row" style="margin:8px 0"></div><div id="overcallBtns"></div><div id="overcallTrumpBtns" style="margin-top:8px"></div></div></div>
 <div id="historyModal" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">📊 Hisab</h3><div id="historyContent" style="max-height:60vh;overflow:auto"></div><div style="margin-top:10px"><button class="btn bg" onclick="nextRoundStart()">NEXT ROUND ▶</button> <button class="btn by" onclick="closeHistory()">Band</button></div></div></div>
@@ -136,14 +136,7 @@ const ICE_SERVERS = [
   {urls: "turn:openrelay.metered.ca:443", username:"openrelayproject", credential:"openrelayproject"},
   {urls: "turn:openrelay.metered.ca:443?transport=tcp", username:"openrelayproject", credential:"openrelayproject"}
 ];
-const PEER_CONFIG = {
-  host: '0.peerjs.com',
-  port: 443,
-  path: '/',
-  secure: true,
-  pingInterval: 5000,
-  config: { iceServers: ICE_SERVERS }
-};
+const PEER_CONFIG = { host:'0.peerjs.com', port:443, path:'/', secure:true, pingInterval:5000, config:{iceServers:ICE_SERVERS} };
 let myName="",roomId="",roomDisplay="",peer=null,conns={},isHost=true,players=[],dealer=0,bidder=1,gameNo=1,scores={},extra={},hands={},bids={},trump="",tricksWon={},center=[],turn=0,trick=1,deck=[],isBotGame=true,gameStarted=false,historyLog=[],initialBidder=0,initialBid=0;
 let overcallOrder=[],overcallIdx=0;
 let turnTimer=null,turnTimeLeft=30,originalNames={},bidTimer=null;
@@ -174,13 +167,13 @@ let gen=normalizeRoomId('trump'+(rnd(9000)+1000));
 roomId=gen.internal; roomDisplay=gen.display;
 document.getElementById('roomIdTxt').innerText=roomDisplay;document.getElementById('lobbyRoomCode').innerText=roomDisplay;document.getElementById('waitingRoomCode').innerText=roomDisplay;players=[myName];renderLobby();
 document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.remove('hidden');
-document.getElementById('phase').innerText='Lobby - '+roomDisplay;
+document.getElementById('phase').innerText='Lobby Host: '+roomDisplay;
 isHost=true; isBotGame=false; gameStarted=false;
 try{
   if(typeof Peer!=='undefined'){
     if(peer){try{peer.destroy();}catch{}}
     peer=new Peer(roomId, PEER_CONFIG);
-    peer.on('open',function(id){document.getElementById('phase').innerText='✅ Room Online: '+roomDisplay+' (TURN Ready)'; showToast('✅ Room ban gaya! ID: '+roomDisplay);});
+    peer.on('open',function(id){document.getElementById('phase').innerText='✅ Host Room: '+roomDisplay+' (TURN Ready)'; showToast('✅ Room ban gaya! ID: '+roomDisplay);});
     peer.on('connection',function(c){
       c.on('open',function(){
         c.on('data',function(d){handleData(d,c);});
@@ -188,7 +181,7 @@ try{
         c.on('close',()=>{handlePeerClose(c.peer);});
       });
     });
-    peer.on('error',function(err){ if(err.type==='unavailable-id'){showToast('ID busy, dusra bana raha hu'); createRoom();} else {document.getElementById('phase').innerText='Room: '+roomDisplay+' - Error: '+err.type;}});
+    peer.on('error',function(err){ if(err.type==='unavailable-id'){showToast('ID busy, dusra bana raha hu'); setTimeout(createRoom,500);} else {document.getElementById('phase').innerText='Room: '+roomDisplay+' - Error: '+err.type;}});
     peer.on('disconnected',()=>{try{peer.reconnect();}catch{}});
   }
 }catch(e){console.log(e);}
@@ -205,37 +198,45 @@ roomId=gen.internal; roomDisplay=gen.display;
 document.getElementById('roomIdTxt').innerText=roomDisplay;document.getElementById('lobbyRoomCode').innerText=roomDisplay;document.getElementById('waitingRoomCode').innerText=roomDisplay;
 document.getElementById('modal').classList.add('hidden');
 document.getElementById('waitingLobby').classList.remove('hidden');
-document.getElementById('waitingStatus').innerText='⏳ Connecting to '+roomDisplay+'...';
+document.getElementById('waitingStatus').innerText='⏳ Connecting to '+roomDisplay+'... (Guest mode)';
 document.getElementById('retryBtn').style.display='none';
-document.getElementById('phase').innerText='Joining: '+roomDisplay+'...';
+document.getElementById('phase').innerText='Joining as Guest: '+roomDisplay+'...';
 isHost=false; isBotGame=false; gameStarted=false;players=[];
-try{
+let attemptCount=0; let maxAttempts=4;
+function doConnect(){
+ attemptCount++;
+ document.getElementById('waitingStatus').innerText='⏳ '+roomDisplay+' Try '+attemptCount+'/'+maxAttempts+'...';
+ try{
   if(peer){try{peer.destroy();}catch{}}
   peer=new Peer(PEER_CONFIG);
   peer.on('open',function(myId){
-    let conn=peer.connect(roomId,{reliable:true, config:{iceServers:ICE_SERVERS}});
-    let timeout=setTimeout(()=>{ if(!conns[roomId]){ showToast('⚠️ Jio/Airtel slow hai, retry karo...'); document.getElementById('retryBtn').style.display='inline-block'; } },7000);
+    let conn=peer.connect(roomId,{reliable:true, serialization:'json', config:{iceServers:ICE_SERVERS}});
+    let timeout=setTimeout(()=>{ if(!conns[roomId]){ if(attemptCount < maxAttempts){document.getElementById('waitingStatus').innerText='⚠️ Slow... retry '+attemptCount; setTimeout(doConnect,2000);} else {document.getElementById('retryBtn').style.display='inline-block'; document.getElementById('waitingStatus').innerText='⚠️ Network slow - RETRY dabao - Chrome me kholo';} } },8000);
     conn.on('open',function(){
       clearTimeout(timeout);
       conns[roomId]=conn;
       conn.on('data',function(d){handleData(d);});
       conn.on('close',function(){showToast('Host ne band kiya'); document.getElementById('retryBtn').style.display='inline-block';});
       conn.send({type:'join',name:myName});
-      document.getElementById('phase').innerText='✅ Connected to: '+roomDisplay;
-      document.getElementById('waitingStatus').innerText='✅ Connected! '+roomDisplay+' - Host START ka wait';
-      showToast('✅ Connected! Host START karega');
+      document.getElementById('phase').innerText='✅ Guest: '+roomDisplay;
+      document.getElementById('waitingStatus').innerText='✅ Guest Connected! '+roomDisplay+' - Host START ka wait karo';
+      showToast('✅ Guest Connected!');
     });
     conn.on('error',function(err){
       clearTimeout(timeout);
-      document.getElementById('waitingStatus').innerText='❌ Room '+roomDisplay+' nahi mila';
-      document.getElementById('retryBtn').style.display='inline-block';
+      if(attemptCount < maxAttempts){setTimeout(doConnect,2000); document.getElementById('waitingStatus').innerText='⚠️ Retry '+attemptCount+'...';}
+      else {document.getElementById('waitingStatus').innerHTML='❌ Room <b>'+roomDisplay+'</b> nahi mila!<br>Host ne banaya? Host Chrome me hai?'; document.getElementById('retryBtn').style.display='inline-block';}
     });
   });
   peer.on('error',function(err){
-    document.getElementById('waitingStatus').innerText='❌ Error: '+err.type+' - Retry karo (ID auto CAPITAL)';
+    if(err.type==='peer-unavailable'){document.getElementById('waitingStatus').innerHTML='❌ Room <b>'+roomDisplay+'</b> nahi mila - Host offline!';}
+    else {document.getElementById('waitingStatus').innerText='❌ Error: '+err.type+' - Retry karo';}
     document.getElementById('retryBtn').style.display='inline-block';
   });
-}catch(e){console.log(e);}
+  peer.on('disconnected',()=>{try{peer.reconnect();}catch{}});
+ }catch(e){console.log(e); document.getElementById('retryBtn').style.display='inline-block';}
+}
+doConnect();
 }
 function retryJoin(){
   let gen=normalizeRoomId(lastJoinId||document.getElementById('joinId').value.trim());
