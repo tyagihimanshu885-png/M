@@ -2,8 +2,9 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trump Premium - FINAL PERFECT - ONLY MY SERVER</title>
+<title>Trump Premium - FINAL PERFECT - ONLY MY SERVER + INSTANT JOIN</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',system-ui}
@@ -93,6 +94,9 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#c62828;color:#fff;padding:14px 22px;border-radius:10px;font-weight:800;font-size:16px;z-index:500;display:none;box-shadow:0 4px 20px rgba(0,0,0,.7);border:2px solid #fff;animation:toastPop .3s ease}
 @keyframes toastPop{0%{transform:translate(-50%,-50%) scale(0.5)}100%{transform:translate(-50%,-50%) scale(1)}}
 #timerBar{position:absolute;top:32%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#ffca28;padding:2px 8px;border-radius:10px;font-weight:800;font-size:13px;z-index:12;border:1px solid #ffca28;display:none;min-width:42px;text-align:center}
+.shareBox{background:#0e3a2e;border:2px solid #ffca28;border-radius:10px;padding:10px;margin:10px 0;text-align:left}
+.shareLink{word-break:break-all;background:rgba(0,0,0,.5);padding:6px 8px;border-radius:6px;font-size:12px;color:#00e676;margin:6px 0}
+#qrcodeLobby{display:flex;justify-content:center;margin:8px 0;background:#fff;padding:8px;border-radius:8px}
 </style>
 </head>
 <body>
@@ -116,14 +120,16 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <button onclick="sendEmoji('❤️')">❤️</button>
 <button onclick="sendEmoji('😡')">😡</button>
 <button onclick="sendEmoji('😟')">😟</button>
-</div><div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium - ONLY MY SERVER</h3><p style="font-size:11px;color:#00e676;margin:6px 0">✅ Server: trump-server-hy49.onrender.com - Jio Fix</p><p style="font-size:11px;color:#ffe082;margin:6px 0">5-5 baant ke +1 se kaato, 8-8 baant ke 13 se bid</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID" style="flex:1"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div></div></div>
-<div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">🟢 Room Ban Gaya</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div><div class="row"><button class="btn by" onclick="copyRoom()">COPY</button><button class="btn bb" onclick="shareWA()">WA Share</button></div><div id="lobbyPlayers" style="margin:10px 0;text-align:left"></div><div class="row"><button class="btn bg" onclick="addBotToLobby()">+ Bot Add</button><button class="btn by" onclick="hostStartFromLobby()">▶ START</button></div><div class="row"><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
+</div>
+<div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium - ONLY MY SERVER</h3><p style="font-size:11px;color:#00e676;margin:6px 0">✅ Server: trump-server-hy49.onrender.com - Jio Fix + Instant Join</p><p style="font-size:11px;color:#ffe082;margin:6px 0">5-5 baant ke +1 se kaato, 8-8 baant ke 13 se bid</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID" style="flex:1"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div id="autoJoinMsg" style="font-size:11px;color:#00e676;margin-top:6px"></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div></div></div>
+<div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">🟢 Room Ban Gaya</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div>
+<div class="shareBox"><b style="color:#ffca28">🔗 CardGames.io jaisa Instant Link:</b><div id="shareLink" class="shareLink"></div><div class="row"><button class="btn by" onclick="copyLink()">📋 Link Copy</button><button class="btn bb" onclick="shareWA()">📱 WhatsApp</button></div><div id="qrcodeLobby"></div><div style="font-size:10px;color:#ffe082;text-align:center">Dost link pe click karega → Direct Join!</div></div>
+<div id="lobbyPlayers" style="margin:10px 0;text-align:left"></div><div class="row"><button class="btn bg" onclick="addBotToLobby()">+ Bot Add</button><button class="btn by" onclick="hostStartFromLobby()">▶ START</button></div><div class="row"><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
 <div id="waitingLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">⏳ Joined!</h3><div id="waitingRoomCode" class="lobbyCode">TRUMP1234</div><div id="waitingPlayers" style="margin:10px 0;text-align:left"></div><div style="font-size:12px;color:#0f0">Host START ka wait karo</div><div class="row" style="margin-top:10px"><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
 <div id="bidModal" class="modal hidden"><div class="modalBox"><h3 id="bidTitle">Bid</h3><div id="bidRoundInfo" style="margin:4px 0;font-size:11px;color:#ffe082"></div><div id="bidTrumpInfo" style="margin:6px 0;font-size:13px;font-weight:800;color:#ffca28"></div><div id="bidCards" class="row" style="margin:8px 0"></div><div id="bidBtns"></div><div id="trumpBtns" style="margin-top:8px"></div></div></div>
 <div id="overcallModal" class="modal hidden"><div class="modalBox"><h3 id="overcallTitle">Kaatna?</h3><div id="overcallInfo" style="margin:6px 0;font-size:12px;color:#ffe082"></div><div id="overcallCards" class="row" style="margin:8px 0"></div><div id="overcallBtns"></div><div id="overcallTrumpBtns" style="margin-top:8px"></div></div></div>
 <div id="historyModal" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">📊 Hisab</h3><div id="historyContent" style="max-height:60vh;overflow:auto"></div><div style="margin-top:10px"><button class="btn bg" onclick="nextRoundStart()">NEXT ROUND ▶</button> <button class="btn by" onclick="closeHistory()">Band</button></div></div></div>
 <script>
-// === ONLY MY SERVER - NO OTHER PEER SERVER ===
 const ICE_SERVERS_FIX = [
   {urls:"stun:stun.l.google.com:19302"},
   {urls:"stun:stun1.l.google.com:19302"},
@@ -134,8 +140,42 @@ const ICE_SERVERS_FIX = [
   {urls:"turn:openrelay.metered.ca:443?transport=tcp",username:"openrelayproject",credential:"openrelayproject"}
 ];
 const PEER_CFG = {host:'trump-server-hy49.onrender.com',port:443,path:'/',secure:true,pingInterval:5000,config:{iceServers:ICE_SERVERS_FIX}};
-
-let myName="",roomId="",peer=null,conns={},isHost=true,players=[],dealer=0,bidder=1,gameNo=1,scores={},extra={},hands={},bids={},trump="",tricksWon={},center=[],turn=0,trick=1,deck=[],isBotGame=true,gameStarted=false,historyLog=[],initialBidder=0,initialBid=0;
+function getShareLink(rId){
+  let base = location.origin + location.pathname;
+  return base + '?room=' + rId;
+}
+function updateShareUI(rId){
+  let link = getShareLink(rId);
+  let el = document.getElementById('shareLink');
+  if(el) el.innerText = link;
+  let qrEl = document.getElementById('qrcodeLobby');
+  if(qrEl){
+    qrEl.innerHTML='';
+    try{ new QRCode(qrEl, {text: link, width: 160, height: 160, colorDark:"#000000", colorLight:"#ffffff", correctLevel: QRCode.CorrectLevel.H}); }catch(e){ qrEl.innerText=link; }
+  }
+}
+function copyLink(){
+  let link = getShareLink(roomId);
+  try{navigator.clipboard.writeText(link); alert('Link Copied: '+link);}catch(e){prompt('Copy karo:',link);}
+}
+function copyRoom(){ copyLink(); }
+function shareWA(){
+  let link = getShareLink(roomId);
+  let txt='Trump Premium khelo! 🃏 Room: '+roomId+' Link pe click karke direct join karo: '+link;
+  window.open('https://wa.me/?text='+encodeURIComponent(txt));
+}
+window.addEventListener('load', function(){
+  try{
+    let params = new URLSearchParams(location.search);
+    let r = params.get('room');
+    if(r){
+      r = r.toUpperCase().trim();
+      document.getElementById('joinId').value = r;
+      document.getElementById('autoJoinMsg').innerHTML = '🔗 Link se Room mila: <b>'+r+'</b> - Naam likh ke JOIN dabao! CardGames.io jaisa instant join!';
+      document.getElementById('myName').focus();
+    }
+  }catch(e){}
+});let myName="",roomId="",peer=null,conns={},isHost=true,players=[],dealer=0,bidder=1,gameNo=1,scores={},extra={},hands={},bids={},trump="",tricksWon={},center=[],turn=0,trick=1,deck=[],isBotGame=true,gameStarted=false,historyLog=[],initialBidder=0,initialBid=0;
 let overcallOrder=[],overcallIdx=0;
 let turnTimer=null,turnTimeLeft=30,originalNames={},bidTimer=null;
 const suits=["♠","♥","♦","♣"],ranks=["A","K","Q","J","10","9","8","7","6","5","4","3","2"],pow={A:14,K:13,Q:12,J:11,"10":10,"9":9,"8":8,"7":7,"6":6,"5":5,"4":4,"3":3,"2":2};
@@ -152,7 +192,7 @@ function startBidTimer(cb){clearBidTimer();bidTimer=setTimeout(()=>{if(cb) cb();
 function clearBidTimer(){if(bidTimer){clearTimeout(bidTimer); bidTimer=null;}}
 function renderLobby(){let html='';for(let i=0;i<4;i++){let p=players[i];if(p){let isH=i==0?' (Host)':'';let orig=originalNames[i]?' ('+originalNames[i]+' offline)':'';html+='<div class="playerSlot joined">✅ '+(i+1)+'. '+p+isH+orig+' - Joined</div>';}else{html+='<div class="playerSlot">⏳ '+(i+1)+'. Waiting...</div>';}}let lp=document.getElementById('lobbyPlayers');let wp=document.getElementById('waitingPlayers');if(lp) lp.innerHTML=html;if(wp) wp.innerHTML=html;}
 function directBotStart(){myName=document.getElementById('myName').value.trim();if(!myName){ myName='Player'; }roomId='TRUMP'+(rnd(9000)+1000);document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.add('hidden');document.getElementById('waitingLobby').classList.add('hidden');isBotGame=true; gameStarted=true; isHost=true;players=[myName,'B','C','D'];hostStartGame();}
-function createRoom(){myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }roomId='TRUMP'+(rnd(9000)+1000);document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;players=[myName];renderLobby();document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.remove('hidden');document.getElementById('phase').innerText='Lobby - Connecting to MY SERVER...';isHost=true; isBotGame=false; gameStarted=false;try{if(typeof Peer!=='undefined'){peer=new Peer(roomId, PEER_CFG);peer.on('open',function(){document.getElementById('phase').innerText='✅ Room Online MY SERVER: '+roomId;});peer.on('connection',function(c){c.on('open',function(){c.on('data',function(d){handleData(d,c);});conns[c.peer]=c; c.on('close',()=>{handlePeerClose(c.peer);});});});peer.on('error',function(e){console.log(e); document.getElementById('phase').innerText='Room: '+roomId+' - '+e.type;});peer.on('disconnected',()=>{try{peer.reconnect();}catch{}});}}catch(e){console.log(e);}}
+function createRoom(){myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }roomId='TRUMP'+(rnd(9000)+1000);document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;players=[myName];renderLobby();document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.remove('hidden');document.getElementById('phase').innerText='Lobby - Connecting to MY SERVER...';isHost=true; isBotGame=false; gameStarted=false;updateShareUI(roomId);try{if(typeof Peer!=='undefined'){peer=new Peer(roomId, PEER_CFG);peer.on('open',function(){document.getElementById('phase').innerText='✅ Room Online MY SERVER: '+roomId;});peer.on('connection',function(c){c.on('open',function(){c.on('data',function(d){handleData(d,c);});conns[c.peer]=c; c.on('close',()=>{handlePeerClose(c.peer);});});});peer.on('error',function(e){console.log(e); document.getElementById('phase').innerText='Room: '+roomId+' - '+e.type;});peer.on('disconnected',()=>{try{peer.reconnect();}catch{}});}}catch(e){console.log(e);}}
 function joinRoom(){myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }let jid=document.getElementById('joinId').value.trim().toUpperCase();if(!jid){ alert('Room ID likho'); return; }roomId=jid;document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;document.getElementById('modal').classList.add('hidden');document.getElementById('waitingLobby').classList.remove('hidden');document.getElementById('phase').innerText='Joining MY SERVER: '+roomId;isHost=false; isBotGame=false; gameStarted=false;players=[];try{peer=new Peer(PEER_CFG);peer.on('open',function(){let conn=peer.connect(roomId,{reliable:true,config:{iceServers:ICE_SERVERS_FIX}});conn.on('open',function(){conns[roomId]=conn;conn.on('data',function(d){handleData(d);});conn.send({type:'join',name:myName});document.getElementById('phase').innerText='✅ Joined MY SERVER: '+roomId;});conn.on('error',function(e){console.log(e); document.getElementById('phase').innerText='❌ Room nahi mila: '+roomId;});});peer.on('error',function(e){console.log(e);});peer.on('disconnected',()=>{try{peer.reconnect();}catch{}});}catch(e){console.log(e);}}
 function handlePeerClose(peerId){showToast('⚠️ Koi player offline hua');}
 function addBotToLobby(){if(players.length>=4){alert('Room full');return;}let botNames=['B','C','D'];for(let n of botNames){if(players.length>=4)break;if(players.indexOf(n)==-1) players.push(n);}if(players.length<4){players.push('Bot'+players.length);}renderLobby();broadcast({type:'lobby',players:players,roomId:roomId});}
@@ -442,8 +482,6 @@ function showFinal(){document.getElementById('modal').classList.remove('hidden')
 function toggleEmojiBar(){let bar=document.getElementById('emojiBar');bar.classList.toggle('open');}
 function sendEmoji(e){showEmojiLocal(myName, e);try{broadcast({type:'reaction', from:myName, emoji:e});}catch(err){} document.getElementById('emojiBar').classList.remove('open');}
 function showEmojiLocal(from, emoji){let idx=players.indexOf(from);if(idx<0) return;let id=["A","B","C","D"][idx];let seat=document.getElementById('seat-'+id);if(!seat) return;let el=document.createElement('div');el.className='emojiReact';el.innerText=emoji;seat.appendChild(el);setTimeout(()=>{try{el.remove();}catch{}},2200);}
-function copyRoom(){try{navigator.clipboard.writeText(roomId);alert('Room Code: '+roomId);}catch(e){alert('Room Code: '+roomId);}}
-function shareWA(){let txt='Trump Premium khelo! Room ID: '+roomId+' Link: '+location.href;window.open('https://wa.me/?text='+encodeURIComponent(txt));}
 </script>
 </body>
 </html>
