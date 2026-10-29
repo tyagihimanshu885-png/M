@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trump Premium - FINAL PERFECT</title>
+<title>Trump Premium - FINAL FIXED</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
@@ -93,6 +93,9 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#c62828;color:#fff;padding:14px 22px;border-radius:10px;font-weight:800;font-size:16px;z-index:500;display:none;box-shadow:0 4px 20px rgba(0,0,0,.7);border:2px solid #fff;animation:toastPop .3s ease}
 @keyframes toastPop{0%{transform:translate(-50%,-50%) scale(0.5)}100%{transform:translate(-50%,-50%) scale(1)}}
 #timerBar{position:absolute;top:32%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#ffca28;padding:2px 8px;border-radius:10px;font-weight:800;font-size:13px;z-index:12;border:1px solid #ffca28;display:none;min-width:42px;text-align:center}
+.statusDot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
+.online{background:#00e676;box-shadow:0 0 6px #00e676}
+.offline{background:#ff5252}
 </style>
 </head>
 <body>
@@ -117,32 +120,120 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <button onclick="sendEmoji('😡')">😡</button>
 <button onclick="sendEmoji('😟')">😟</button>
 </div>
-<div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium</h3><p style="font-size:11px;color:#ffe082;margin:6px 0">5-5 baant ke +1 se kaato, 8-8 baant ke 13 se bid</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID" style="flex:1"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div></div></div>
-<div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">🟢 Room Ban Gaya</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div><div class="row"><button class="btn by" onclick="copyRoom()">COPY</button><button class="btn bb" onclick="shareWA()">WA Share</button></div><div id="lobbyPlayers" style="margin:10px 0;text-align:left"></div><div class="row"><button class="btn bg" onclick="addBotToLobby()">+ Bot Add</button><button class="btn by" onclick="hostStartFromLobby()">▶ START</button></div><div class="row"><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
-<div id="waitingLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">⏳ Joined!</h3><div id="waitingRoomCode" class="lobbyCode">TRUMP1234</div><div id="waitingPlayers" style="margin:10px 0;text-align:left"></div><div style="font-size:12px;color:#0f0">Host START ka wait karo</div><div class="row" style="margin-top:10px"><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
+<div id="modal" class="modal"><div class="modalBox"><h3 style="color:#ffca28">🃏 Trump Premium - FINAL FIXED</h3><p style="font-size:11px;color:#ffe082;margin:6px 0">5-5 baant ke +1 se kaato, 8-8 baant ke 13 se bid - CardGames.io style joining!</p><input id="myName" placeholder="Tumhara Naam" value=""><div class="row" style="margin-top:8px"><button class="btn by" onclick="createRoom()">ROOM BANAO</button></div><div class="row"><input id="joinId" placeholder="Room ID" style="flex:1"><button class="btn bb" onclick="joinRoom()">JOIN</button></div><div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo</button></div></div></div>
+<div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">🟢 Room Ban Gaya - CardGames.io Style</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div><div class="row"><button class="btn by" onclick="copyRoom()">COPY</button><button class="btn bb" onclick="shareWA()">WA Share</button></div><div id="lobbyPlayers" style="margin:10px 0;text-align:left"></div><div class="row"><button class="btn bg" onclick="addBotToLobby()">+ Bot Add</button><button class="btn by" onclick="hostStartFromLobby()">▶ START</button></div><div class="row"><button class="btn br" onclick="leaveLobby()">Leave</button></div><div style="font-size:10px;color:#00e676;margin-top:8px">✅ TURN Server ON - Jio pe bhi join hoga!</div></div></div>
+<div id="waitingLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">⏳ Joined!</h3><div id="waitingRoomCode" class="lobbyCode">TRUMP1234</div><div id="waitingPlayers" style="margin:10px 0;text-align:left"></div><div id="waitingStatus" style="font-size:12px;color:#0f0">✅ Connected! Host START ka wait karo</div><div class="row" style="margin-top:10px"><button class="btn by" id="retryBtn" onclick="retryJoin()" style="display:none">🔄 RETRY JOIN</button><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
 <div id="bidModal" class="modal hidden"><div class="modalBox"><h3 id="bidTitle">Bid</h3><div id="bidRoundInfo" style="margin:4px 0;font-size:11px;color:#ffe082"></div><div id="bidTrumpInfo" style="margin:6px 0;font-size:13px;font-weight:800;color:#ffca28"></div><div id="bidCards" class="row" style="margin:8px 0"></div><div id="bidBtns"></div><div id="trumpBtns" style="margin-top:8px"></div></div></div>
 <div id="overcallModal" class="modal hidden"><div class="modalBox"><h3 id="overcallTitle">Kaatna?</h3><div id="overcallInfo" style="margin:6px 0;font-size:12px;color:#ffe082"></div><div id="overcallCards" class="row" style="margin:8px 0"></div><div id="overcallBtns"></div><div id="overcallTrumpBtns" style="margin-top:8px"></div></div></div>
 <div id="historyModal" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">📊 Hisab</h3><div id="historyContent" style="max-height:60vh;overflow:auto"></div><div style="margin-top:10px"><button class="btn bg" onclick="nextRoundStart()">NEXT ROUND ▶</button> <button class="btn by" onclick="closeHistory()">Band</button></div></div></div>
 <script>
+const ICE_SERVERS = [
+  {urls: "stun:stun.l.google.com:19302"},
+  {urls: "stun:stun1.l.google.com:19302"},
+  {urls: "stun:global.stun.twilio.com:3478"},
+  {urls: "turn:openrelay.metered.ca:80", username:"openrelayproject", credential:"openrelayproject"},
+  {urls: "turn:openrelay.metered.ca:443", username:"openrelayproject", credential:"openrelayproject"},
+  {urls: "turn:openrelay.metered.ca:443?transport=tcp", username:"openrelayproject", credential:"openrelayproject"}
+];
 let myName="",roomId="",peer=null,conns={},isHost=true,players=[],dealer=0,bidder=1,gameNo=1,scores={},extra={},hands={},bids={},trump="",tricksWon={},center=[],turn=0,trick=1,deck=[],isBotGame=true,gameStarted=false,historyLog=[],initialBidder=0,initialBid=0;
 let overcallOrder=[],overcallIdx=0;
 let turnTimer=null,turnTimeLeft=30,originalNames={},bidTimer=null;
+let lastJoinId="", retryCount=0;
 const suits=["♠","♥","♦","♣"],ranks=["A","K","Q","J","10","9","8","7","6","5","4","3","2"],pow={A:14,K:13,Q:12,J:11,"10":10,"9":9,"8":8,"7":7,"6":6,"5":5,"4":4,"3":3,"2":2};
 function rnd(n){return Math.floor(Math.random()*n)}
 function isBotPlayer(name){ if(!name) return true; return name=='B' || name=='C' || name=='D' || name.startsWith('Bot'); }
 function mkDeck(){let d=[]; for(let s of suits){ for(let r of ranks){ d.push({s:s,r:r,p:pow[r],id:s+"_"+r}); } } for(let i=d.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); let t=d[i]; d[i]=d[j]; d[j]=t; } return d;}
 function sortBySuit(a,b){let o={'♠':0,'♥':1,'♦':2,'♣':3}; if(o[a.s]!=o[b.s]) return o[a.s]-o[b.s]; return b.p-a.p;}
-function showToast(msg){let t=document.getElementById('toast');t.innerText=msg;t.style.display='block';setTimeout(()=>{t.style.display='none';},1800);}
+function showToast(msg){let t=document.getElementById('toast');t.innerText=msg;t.style.display='block';setTimeout(()=>{t.style.display='none';},2500);}
 function startTurnTimer(){clearTurnTimer();turnTimeLeft=30;let tb=document.getElementById('timerBar');if(tb){tb.style.display='block';}updateTimerUI();turnTimer=setInterval(()=>{turnTimeLeft--;updateTimerUI();if(turnTimeLeft<=0){clearTurnTimer();handleTurnTimeout();}},1000);}
 function clearTurnTimer(){if(turnTimer){clearInterval(turnTimer); turnTimer=null;}let tb=document.getElementById('timerBar');if(tb){tb.style.display='none';}}
 function updateTimerUI(){let tb=document.getElementById('timerBar');if(tb){tb.innerText='⏱ '+turnTimeLeft+'s';if(turnTimeLeft<=10){tb.style.background='#c62828'; tb.style.color='#fff';}else {tb.style.background='rgba(0,0,0,.7)'; tb.style.color='#ffca28';}}}
 function handleTurnTimeout(){let who=players[turn];if(!who) return;if(isBotPlayer(who)){if(isHost) botPlay();return;}showToast('⏰ '+who+' 30sec me nahi chala - Bot aa gaya!');if(isHost){originalNames[turn]=who;let botName='Bot'+(turn+1);players[turn]=botName;if(hands[who]){hands[botName]=hands[who]; delete hands[who];}if(bids[who]!=null){bids[botName]=bids[who]; delete bids[who];}if(tricksWon[who]!=null){tricksWon[botName]=tricksWon[who]; delete tricksWon[who];}if(scores[who]!=null){scores[botName]=scores[who]; extra[botName]=extra[who];}broadcast({type:'playerReplaced', players:players, replacedIdx:turn, original:who, bot:botName, hands:hands, bids:bids, tricksWon:tricksWon, scores:scores, extra:extra});updateUI(); renderAll();setTimeout(()=>{botPlay();},800);}}
 function startBidTimer(cb){clearBidTimer();bidTimer=setTimeout(()=>{if(cb) cb();},40000);}
 function clearBidTimer(){if(bidTimer){clearTimeout(bidTimer); bidTimer=null;}}
-function renderLobby(){let html='';for(let i=0;i<4;i++){let p=players[i];if(p){let isH=i==0?' (Host)':'';let orig=originalNames[i]?' ('+originalNames[i]+' offline)':'';html+='<div class="playerSlot joined">✅ '+(i+1)+'. '+p+isH+orig+' - Joined</div>';}else{html+='<div class="playerSlot">⏳ '+(i+1)+'. Waiting...</div>';}}let lp=document.getElementById('lobbyPlayers');let wp=document.getElementById('waitingPlayers');if(lp) lp.innerHTML=html;if(wp) wp.innerHTML=html;}
+function renderLobby(){let html='';for(let i=0;i<4;i++){let p=players[i];if(p){let isH=i==0?' (Host)':'';let orig=originalNames[i]?' ('+originalNames[i]+' offline)':'';html+='<div class="playerSlot joined"><span><span class="statusDot online"></span>'+(i+1)+'. '+p+isH+orig+'</span><span>✅</span></div>';}else{html+='<div class="playerSlot"><span><span class="statusDot offline"></span>'+(i+1)+'. Waiting...</span><span>⏳</span></div>';}}let lp=document.getElementById('lobbyPlayers');let wp=document.getElementById('waitingPlayers');if(lp) lp.innerHTML=html;if(wp) wp.innerHTML=html;}
 function directBotStart(){myName=document.getElementById('myName').value.trim();if(!myName){ myName='Player'; }roomId='TRUMP'+(rnd(9000)+1000);document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.add('hidden');document.getElementById('waitingLobby').classList.add('hidden');isBotGame=true; gameStarted=true; isHost=true;players=[myName,'B','C','D'];hostStartGame();}
-function createRoom(){myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }roomId='TRUMP'+(rnd(9000)+1000);document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;players=[myName];renderLobby();document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.remove('hidden');document.getElementById('phase').innerText='Lobby';isHost=true; isBotGame=false; gameStarted=false;try{if(typeof Peer!=='undefined'){peer=new Peer(roomId);peer.on('open',function(){document.getElementById('phase').innerText='Room Online: '+roomId;});peer.on('connection',function(c){c.on('open',function(){c.on('data',function(d){handleData(d,c);});conns[c.peer]=c; c.on('close',()=>{handlePeerClose(c.peer);});});});peer.on('error',function(){document.getElementById('phase').innerText='Room: '+roomId;});}}catch(e){}}
-function joinRoom(){myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }let jid=document.getElementById('joinId').value.trim().toUpperCase();if(!jid){ alert('Room ID likho'); return; }roomId=jid;document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;document.getElementById('modal').classList.add('hidden');document.getElementById('waitingLobby').classList.remove('hidden');document.getElementById('phase').innerText='Joining: '+roomId;isHost=false; isBotGame=false; gameStarted=false;players=[];try{peer=new Peer();peer.on('open',function(){let conn=peer.connect(roomId);conn.on('open',function(){conns[roomId]=conn;conn.on('data',function(d){handleData(d);});conn.send({type:'join',name:myName});document.getElementById('phase').innerText='Joined: '+roomId;});conn.on('error',function(){setTimeout(directBotStart,1000);});});peer.on('error',function(){setTimeout(directBotStart,800);});}catch(e){setTimeout(directBotStart,500);}}
+function createRoom(){
+myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }
+roomId='TRUMP'+(rnd(9000)+1000);
+document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;players=[myName];renderLobby();
+document.getElementById('modal').classList.add('hidden');document.getElementById('onlineLobby').classList.remove('hidden');
+document.getElementById('phase').innerText='Lobby - TURN ON';
+isHost=true; isBotGame=false; gameStarted=false;
+try{
+  if(typeof Peer!=='undefined'){
+    peer=new Peer(roomId,{config:{iceServers:ICE_SERVERS}, debug:0});
+    peer.on('open',function(){document.getElementById('phase').innerText='✅ Room Online: '+roomId+' (TURN Ready)'; showToast('✅ Room ban gaya! ID: '+roomId);});
+    peer.on('connection',function(c){
+      c.on('open',function(){
+        c.on('data',function(d){handleData(d,c);});
+        conns[c.peer]=c;
+        c.on('close',()=>{handlePeerClose(c.peer);});
+      });
+      c.on('error',function(err){console.log('conn err',err);});
+    });
+    peer.on('error',function(err){console.log('peer err',err); if(err.type==='unavailable-id'){showToast('ID busy, dusra bana raha hu'); roomId='TRUMP'+(rnd(9000)+1000); createRoom();} else {document.getElementById('phase').innerText='Room: '+roomId;}});
+  }
+}catch(e){console.log(e);}
+}
+function joinRoom(){
+myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }
+let jid=document.getElementById('joinId').value.trim().toUpperCase();if(!jid){ alert('Room ID likho'); return; }
+lastJoinId=jid; retryCount=0;
+attemptJoin(jid);
+}
+function attemptJoin(jid){
+roomId=jid;
+document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;
+document.getElementById('modal').classList.add('hidden');
+document.getElementById('waitingLobby').classList.remove('hidden');
+document.getElementById('waitingStatus').innerText='⏳ Connecting to '+roomId+'... (TURN Server)';
+document.getElementById('retryBtn').style.display='none';
+document.getElementById('phase').innerText='Joining: '+roomId+'...';
+isHost=false; isBotGame=false; gameStarted=false;players=[];
+try{
+  if(peer){try{peer.destroy();}catch{}}
+  peer=new Peer({config:{iceServers:ICE_SERVERS}, debug:0});
+  peer.on('open',function(myId){
+    console.log('my peer id',myId);
+    let conn=peer.connect(roomId,{reliable:true, config:{iceServers:ICE_SERVERS}});
+    let timeout=setTimeout(()=>{ if(!conns[roomId]){ showToast('⚠️ Jio slow hai, retry karo...'); document.getElementById('retryBtn').style.display='inline-block'; document.getElementById('waitingStatus').innerText='⚠️ Connect slow - RETRY dabao, Bot me nahi jayega!'; } },8000);
+    conn.on('open',function(){
+      clearTimeout(timeout);
+      conns[roomId]=conn;
+      conn.on('data',function(d){handleData(d);});
+      conn.on('close',function(){showToast('Host ne band kiya'); document.getElementById('retryBtn').style.display='inline-block';});
+      conn.on('error',function(err){console.log('conn err',err); showToast('Connection error - Retry dabao'); document.getElementById('retryBtn').style.display='inline-block';});
+      conn.send({type:'join',name:myName});
+      document.getElementById('phase').innerText='✅ Connected to: '+roomId;
+      document.getElementById('waitingStatus').innerText='✅ Connected! Host START ka wait karo - Bot me nahi jayega!';
+      showToast('✅ Connected! Host START karega');
+    });
+    conn.on('error',function(err){
+      clearTimeout(timeout);
+      console.log('join conn error',err);
+      document.getElementById('waitingStatus').innerText='❌ Room nahi mila / Network error';
+      document.getElementById('retryBtn').style.display='inline-block';
+      showToast('❌ Join fail - RETRY dabao');
+    });
+  });
+  peer.on('error',function(err){
+    console.log('peer error join',err);
+    document.getElementById('waitingStatus').innerText='❌ Error: '+err.type+' - Retry karo';
+    document.getElementById('retryBtn').style.display='inline-block';
+  });
+}catch(e){
+  console.log(e);
+  document.getElementById('waitingStatus').innerText='❌ Error - Retry karo';
+  document.getElementById('retryBtn').style.display='inline-block';
+}
+}
+function retryJoin(){
+  if(!lastJoinId) lastJoinId=document.getElementById('joinId').value.trim().toUpperCase();
+  retryCount++;
+  showToast('🔄 Retry #'+retryCount+'...');
+  attemptJoin(lastJoinId);
+}
 function handlePeerClose(peerId){showToast('⚠️ Koi player offline hua, 30s me Bot ayega');}
 function addBotToLobby(){if(players.length>=4){alert('Room full');return;}let botNames=['B','C','D'];for(let n of botNames){if(players.length>=4)break;if(players.indexOf(n)==-1) players.push(n);}if(players.length<4){players.push('Bot'+players.length);}renderLobby();broadcast({type:'lobby',players:players,roomId:roomId});}
 function hostStartFromLobby(){if(players.length<2){alert('Kam se kam 2 player');return;}if(players.length<4){if(confirm(players.length+' player hai, baaki bot se bhar du?')){while(players.length<4){let b='B';if(players.indexOf('B')==-1)b='B';else if(players.indexOf('C')==-1)b='C';else if(players.indexOf('D')==-1)b='D';else b='Bot'+players.length;players.push(b);}}}document.getElementById('onlineLobby').classList.add('hidden');document.getElementById('waitingLobby').classList.add('hidden');isBotGame=players.some(p=>isBotPlayer(p));gameStarted=true;broadcast({type:'startGame',players:players,roomId:roomId});hostStartGame();}
@@ -164,8 +255,11 @@ if(data.type=='join'&&isHost){
     updateUI(); renderAll(); return;
   }
   if(players.indexOf(data.name)===-1&&players.length<4){players.push(data.name);if(connFrom)conns[data.name]=connFrom;renderLobby();broadcast({type:'lobby',players:players,roomId:roomId});updateUI();}
+  else if(players.indexOf(data.name)!==-1){
+    renderLobby(); broadcast({type:'lobby',players:players,roomId:roomId});
+  }
 }
-if(data.type=='lobby'){players=data.players;roomId=data.roomId||roomId;renderLobby();document.getElementById('roomIdTxt').innerText=roomId;updateUI();}
+if(data.type=='lobby'){players=data.players;roomId=data.roomId||roomId;renderLobby();document.getElementById('roomIdTxt').innerText=roomId;updateUI(); document.getElementById('waitingStatus').innerText='✅ Joined '+roomId+' - Host START ka wait';}
 if(data.type=='startGame'){players=data.players;roomId=data.roomId||roomId;document.getElementById('waitingLobby').classList.add('hidden');document.getElementById('onlineLobby').classList.add('hidden');isBotGame=players.some(p=>isBotPlayer(p));gameStarted=true;document.getElementById('roomIdTxt').innerText=roomId;hostStartGame();}
 if(data.type=='deal'){hands=data.hands;dealer=data.dealer;bidder=data.bidder;gameNo=data.gameNo;trump=data.trump||"";bids=data.bids||{};scores=data.scores;extra=data.extra;deck=data.deck||[];initialBidder=data.initialBidder!=null?data.initialBidder:bidder;initialBid=data.initialBid||0;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;clearTurnTimer();clearBidTimer();updateUI();renderAll(); if(!isHost && players[bidder]==myName){ setTimeout(()=>showBidModal(players[bidder],5,true),400); }}
 if(data.type=='firstBid'){trump=data.trump;bids=data.bids;bidder=data.bidder;initialBidder=data.initialBidder;initialBid=data.initialBid;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;clearTurnTimer();clearBidTimer();updateUI(); if(!isHost){ let nxt=overcallOrder[overcallIdx]; if(nxt!=null && players[nxt]==myName) setTimeout(()=>showOvercallModal(myName),500); } if(isHost) setTimeout(startOvercallPhase,500);}
