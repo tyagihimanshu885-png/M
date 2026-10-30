@@ -347,4 +347,292 @@ if(data.type=='join'&&isHost){
     broadcast({type:'lobby',players:players,roomId:roomId}); 
     logConn(data.name+' pehle se hai - lobby update bheja');
   }
+}if(data.type=='lobby'){players=data.players;roomId=data.roomId||roomId;renderLobby();document.getElementById('roomIdTxt').innerText=roomId;updateUI(); logConn('Lobby update: '+players.join(','));}
+if(data.type=='startGame'){players=data.players;roomId=data.roomId||roomId;document.getElementById('waitingLobby').classList.add('hidden');document.getElementById('onlineLobby').classList.add('hidden');isBotGame=players.some(p=>isBotPlayer(p));gameStarted=true;document.getElementById('roomIdTxt').innerText=roomId;logConn('Game Start signal: '+players.join(','));hostStartGame();}
+if(data.type=='deal'){
+  hands=data.hands;dealer=data.dealer;bidder=data.bidder;gameNo=data.gameNo;trump=data.trump||"";bids=data.bids||{};scores=data.scores;extra=data.extra;deck=data.deck||[];
+  initialBidder=data.initialBidder!=null?data.initialBidder:bidder;initialBid=data.initialBid||0;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;
+  if(trump) trumpLocked = true;
+  clearTurnTimer();clearBidTimer();updateUI();renderAll(); 
+  if(!isHost && !trumpLocked && data.deck && data.deck.length>0 && players[bidder]==myName){ 
+    setTimeout(()=>showBidModal(players[bidder],5,true),400); 
+  }
 }
+if(data.type=='firstBid'){trump=data.trump;bids=data.bids;bidder=data.bidder;initialBidder=data.initialBidder;initialBid=data.initialBid;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;trumpLocked=false;clearTurnTimer();clearBidTimer();updateUI(); if(!isHost){ let nxt=overcallOrder[overcallIdx]; if(nxt!=null && players[nxt]==myName) setTimeout(()=>showOvercallModal(myName),500); } if(isHost) setTimeout(startOvercallPhase,500);}
+if(data.type=='overcall'){trump=data.trump;bids=data.bids;bidder=data.bidder;overcallOrder=data.overcallOrder||overcallOrder;overcallIdx=data.overcallIdx;clearTurnTimer();clearBidTimer();updateUI(); if(!isHost){ let nxt=overcallOrder[overcallIdx]; if(nxt!=null && players[nxt]==myName) setTimeout(()=>showOvercallModal(myName),500); } if(isHost) setTimeout(continueOvercall,400);}
+if(data.type=='bid'){bids=data.bids;clearTurnTimer();clearBidTimer();updateUI();if(isHost)checkBidsAndContinue();}
+if(data.type=='bidRequest'){trump=data.trump;bids=data.bids;if(data.who==myName){showBidModal(myName,13,false);}updateUI();}
+if(data.type=='play'){center=data.center;turn=data.turn;tricksWon=data.tricksWon;clearTurnTimer();clearBidTimer();renderAll();updateUI(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
+if(data.type=='trickEnd'){tricksWon=data.tricksWon;center=[];turn=data.turn;trick=data.trick;clearTurnTimer();clearBidTimer();updateUI();renderAll(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
+if(data.type=='gameOver'){scores=data.scores;extra=data.extra;historyLog=data.historyLog||historyLog;clearTurnTimer();clearBidTimer();trumpLocked=false;updateUI();gameNo=data.nextGame;if(gameNo>15){showFinal();}else{showHistoryAuto();}}
+if(data.type=='nextRound'){gameNo=data.gameNo;closeHistory();if(isHost)hostStartGame();}
+if(data.type=='reaction'){showEmojiLocal(data.from, data.emoji);}
+if(data.type=='playCard' && isHost){
+  let who=data.who; let card=data.card;
+  let already=center.some(c=>c.who==who && c.id==card.id);
+  if(!already){
+    let h=hands[who]; if(h){ let idx=-1; for(let i=0;i<h.length;i++) if(h[i].id==card.id) idx=i; if(idx>=0) h.splice(idx,1); }
+    center.push({s:card.s,r:card.r,p:card.p,id:card.id,who:who});
+  }
+  nextTurnHost();
+}
+}
+function broadcast(obj){let keys=Object.keys(conns);for(let i=0;i<keys.length;i++){try{conns[keys[i]].send(obj)}catch(e){logConn('Broadcast fail to '+keys[i]+': '+e.message);}}}
+function hostStartGame(){
+gameStarted=true;
+ensureFourPlayers();
+if(Object.keys(scores).length==0){for(let i=0;i<players.length;i++){scores[players[i]]=0;extra[players[i]]=0;}}
+dealer=(gameNo-1)%players.length;
+bidder=(dealer+1)%players.length;
+initialBidder=bidder;
+bids={}; trump=""; trumpLocked=false; tricksWon={};for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;
+center=[]; trick=1; turn=bidder; overcallOrder=[]; overcallIdx=0; clearTurnTimer(); clearBidTimer();
+let fullDeck=mkDeck(); hands={};for(let i=0;i<players.length;i++){ hands[players[i]]=fullDeck.splice(0,5); }deck=fullDeck;
+document.getElementById('uiBox').classList.add('hideGame');
+document.getElementById('onlineLobby').classList.add('hidden');
+document.getElementById('waitingLobby').classList.add('hidden');
+document.getElementById('modal').classList.add('hidden');
+broadcast({type:'deal',hands:hands,dealer:dealer,bidder:bidder,gameNo:gameNo,trump:trump,bids:bids,scores:scores,extra:extra,deck:deck,initialBidder:initialBidder,initialBid:0,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
+updateUI(); renderAll();
+document.getElementById('phase').innerText='Game '+gameNo+' Dealer:'+players[dealer]+' Bidder:'+players[bidder];
+if(players[bidder]==myName){showBidModal(players[bidder],5,true);}else if(isBotPlayer(players[bidder])){setTimeout(botFirstBid,800);}
+}
+function botFirstBid(){
+let who=players[bidder]; if(!isBotPlayer(who)) return;
+let hb=hands[who]||[]; let cnt={}; for(let c of hb) cnt[c.s]=(cnt[c.s]||0)+1; let best='♠',max=0; for(let k in cnt){ if(cnt[k]>max){max=cnt[k];best=k;} }
+trump=best; let bid=Math.max(2,Math.min(5,max+rnd(2)+1)); bids[who]=bid; initialBid=bid; initialBidder=bidder;
+overcallOrder=[]; for(let i=1;i<=3;i++){ overcallOrder.push((initialBidder+i)%players.length); } overcallIdx=0;
+broadcast({type:'firstBid',trump:trump,bids:bids,bidder:bidder,initialBidder:initialBidder,initialBid:initialBid,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
+updateUI(); setTimeout(startOvercallPhase,700);
+}
+function startOvercallPhase(){
+if(overcallIdx>=overcallOrder.length){ dealRestHost(); return; }
+let pIdx=overcallOrder[overcallIdx];
+if(pIdx==null){ dealRestHost(); return; }
+let who=players[pIdx];
+if(who==null){ dealRestHost(); return; }
+if(who==myName){ showOvercallModal(who); }
+else if(isBotPlayer(who) && isHost){ setTimeout(botOvercall,600); }
+else if(isHost){ showToast(players[pIdx]+' ka overcall wait - Koi auto nahi'); }
+}
+function continueOvercall(){ startOvercallPhase(); }
+function botOvercall(){
+let pIdx=overcallOrder[overcallIdx]; if(pIdx==null){ dealRestHost(); return; }
+let who=players[pIdx]; if(!isBotPlayer(who)) return;
+let hb=hands[who]||[]; let cnt={}; for(let c of hb) cnt[c.s]=(cnt[c.s]||0)+1;
+let currentBid=bids[bidder]||initialBid; let bestSuit=null,bestCount=0;
+for(let s in cnt){ if(cnt[s]>bestCount){ bestCount=cnt[s]; bestSuit=s; } }
+let shouldOvercall=false; if(bestCount>=3 && currentBid<7 && rnd(2)==0) shouldOvercall=true;
+if(shouldOvercall && bestSuit){
+let newBid=currentBid+1; if(newBid>8) newBid=8;
+trump=bestSuit; bids[who]=newBid; bidder=pIdx; initialBid=newBid;
+broadcast({type:'overcall',trump:trump,bids:bids,bidder:bidder,overcallOrder:overcallOrder,overcallIdx:overcallIdx+1});
+overcallIdx++;
+}else{
+broadcast({type:'overcall',trump:trump,bids:bids,bidder:bidder,overcallOrder:overcallOrder,overcallIdx:overcallIdx+1});
+overcallIdx++;
+}
+updateUI(); setTimeout(continueOvercall,400);
+}
+function showOvercallModal(who){
+document.getElementById('overcallModal').classList.remove('hidden');
+let sorted=[]; for(let c of (hands[who]||[])) sorted.push(c); sorted.sort(sortBySuit);
+let currentBid=bids[bidder]||initialBid; let currentTrump=trump; let currentHolder=players[bidder]; let minBid=currentBid+1;
+document.getElementById('overcallTitle').innerText=who+' - Kaato? +1';
+document.getElementById('overcallInfo').innerHTML='Current: <b style="background:#ffca28;color:#000;padding:2px 8px;border-radius:8px">'+currentHolder+' - '+currentTrump+' '+currentBid+'</b><br>Min Bid: <b>'+minBid+'</b>';
+let cardsHtml=''; for(let c of sorted){ cardsHtml+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:22px">'+c.s+'</div></div>'; }
+document.getElementById('overcallCards').innerHTML=cardsHtml;
+let opts=''; for(let i=minBid;i<=8;i++){ opts+='<option value="'+i+'">'+i+'</option>'; }
+document.getElementById('overcallBtns').innerHTML='<select id="overcallBidSel">'+opts+'</select> <button class="btn by" onclick="confirmOvercall()">Kaato +1</button> <button class="btn br" onclick="passOvercall()">Pass</button>';
+document.getElementById('overcallTrumpBtns').innerHTML='Naya Trump: <button class="btn bg" onclick="setOvercallTmp(\'♠\')">♠</button><button class="btn bg" onclick="setOvercallTmp(\'♥\')">♥</button><button class="btn bg" onclick="setOvercallTmp(\'♦\')">♦</button><button class="btn bg" onclick="setOvercallTmp(\'♣\')">♣</button> <b id="overcallTmpShow">?</b>';
+clearBidTimer();
+}
+let overcallTmp=""; function setOvercallTmp(s){overcallTmp=s; document.getElementById('overcallTmpShow').innerText=s}
+function confirmOvercall(){
+let b=parseInt(document.getElementById('overcallBidSel').value);
+let currentBid=bids[bidder]||initialBid; let minBid=currentBid+1;
+if(b<minBid){alert('Kam se kam '+minBid+' chahiye');return;}
+if(!overcallTmp){alert('Trump choose karo');return;}
+trump=overcallTmp; bids[myName]=b; bidder=players.indexOf(myName);
+document.getElementById('overcallModal').classList.add('hidden'); overcallTmp=""; clearBidTimer();
+overcallIdx++;
+broadcast({type:'overcall',trump:trump,bids:bids,bidder:bidder,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
+updateUI(); if(isHost) setTimeout(continueOvercall,400);
+}
+function passOvercall(){
+document.getElementById('overcallModal').classList.add('hidden'); overcallTmp=""; clearBidTimer();
+overcallIdx++;
+broadcast({type:'overcall',trump:trump,bids:bids,bidder:bidder,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
+updateUI(); if(isHost) setTimeout(continueOvercall,300);
+}
+function dealRestHost(){
+document.getElementById('overcallModal').classList.add('hidden'); clearBidTimer();
+for(let i=0;i<players.length;i++){let p=players[i]; if(hands[p] && hands[p].length===5){ hands[p]=hands[p].concat(deck.splice(0,8)); } }
+deck=[]; trumpLocked=true;
+document.getElementById('phase').innerText='Final Trump LOCKED: '+trump+' by '+players[bidder]+' ('+bids[players[bidder]]+') - 13 chaal tak same';
+broadcast({type:'deal',hands:hands,dealer:dealer,bidder:bidder,gameNo:gameNo,trump:trump,bids:bids,scores:scores,extra:extra,deck:[],initialBidder:initialBidder,initialBid:initialBid,overcallOrder:[],overcallIdx:0});
+updateUI(); renderAll();let next=(bidder+1)%players.length; checkBidsAndContinue(next);
+}
+function checkBidsAndContinue(startIdx){
+  if(startIdx===undefined) startIdx=(bidder+1)%players.length;
+  if(Object.keys(bids).length>=players.length){ if(isHost) startTricksHost(); return; }
+  let idx=startIdx,attempts=0;
+  while(attempts<10){
+    if(Object.keys(bids).length>=players.length) break;
+    let who=players[idx];
+    if(bids[who]==null){
+      if(who==myName){ showBidModal(who,13,false); return; }
+      else if(isBotPlayer(who) && isHost){
+        let hb=hands[who]||[]; let high=0; for(let c of hb) if(c.r=='A'||c.r=='K'||c.r=='Q') high++;
+        let tc=0; for(let c of hb) if(c.s==trump) tc++;
+        let b=Math.max(1,Math.min(8,Math.floor(high/1.5)+Math.floor(tc/2)+rnd(2)));
+        bids[who]=b; broadcast({type:'bid',bids:bids}); updateUI();
+      }else{
+        if(isHost){ broadcast({type:'bidRequest', who:who, trump:trump, bids:bids}); showToast(players[idx]+' ka bid wait - Koi auto nahi'); }
+        return;
+      }
+    }
+    idx=(idx+1)%players.length; if(idx==bidder) idx=(idx+1)%players.length; attempts++;
+  }
+  if(Object.keys(bids).length>=players.length && isHost){ startTricksHost(); }
+}
+function startTricksHost(){turn=bidder; trick=1; center=[]; tricksWon={}; for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;document.getElementById('uiBox').classList.add('hideGame');broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});updateUI(); renderAll(); startTurnTimer(); if(isBotPlayer(players[turn])) setTimeout(botPlay,700);}
+function getMyIdx(){ let idx=players.indexOf(myName); return idx>=0?idx:0; }
+function getPlayerAtSeat(seat){ let myIdx=getMyIdx(); let pIdx=(myIdx + seat)%players.length; return players[pIdx]; }
+function showBidModal(who,cnt,isFirst){
+document.getElementById('bidModal').classList.remove('hidden');
+let sorted=[]; for(let c of (hands[who]||[])) sorted.push(c); sorted.sort(sortBySuit);
+let roundInfo=isFirst?'Round '+gameNo+' Dealer:'+players[dealer]+' Bidder:'+players[bidder]+' - 5 patte':'Round '+gameNo+' Final Trump:'+trump+' by '+players[bidder];
+document.getElementById('bidRoundInfo').innerText=roundInfo;
+let trumpHtml=trump?'Final Trump: <b style="background:#ffca28;color:#000;padding:4px 12px;border-radius:10px">'+trump+'</b> by '+players[bidder]:'Apni 5 patte dekh ke Trump+Bid bolo - Clockwise';
+document.getElementById('bidTrumpInfo').innerHTML=trumpHtml;
+document.getElementById('bidTitle').innerText=who+' - '+cnt+' patte - '+(isFirst?'Trump+Bid (Clockwise)':'Bid');
+let cardsHtml=''; for(let i=0;i<Math.min(cnt,sorted.length);i++){ let c=sorted[i]; cardsHtml+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:26px">'+c.s+'</div></div>'; }
+document.getElementById('bidCards').innerHTML=cardsHtml;
+let opts=''; for(let i=1;i<=(isFirst?7:10);i++){ opts+='<option value="'+i+'" '+(i==4?'selected':'')+'>'+i+'</option>'; }
+document.getElementById('bidBtns').innerHTML='Bid: <select id="bidSel">'+opts+'</select> <button class="btn by" onclick="confirmBid('+isFirst+')">Lock</button>';
+document.getElementById('trumpBtns').innerHTML=isFirst?'Trump: <button class="btn bg" onclick="setTmp(\'♠\')">♠</button><button class="btn bg" onclick="setTmp(\'♥\')">♥</button><button class="btn bg" onclick="setTmp(\'♦\')">♦</button><button class="btn bg" onclick="setTmp(\'♣\')">♣</button> <b id="tmpShow">?</b>':'';
+}
+let tmpT="";function setTmp(s){tmpT=s;document.getElementById('tmpShow').innerText=s}
+function confirmBid(isFirst){
+clearBidTimer();
+let b=parseInt(document.getElementById('bidSel').value);
+if(isFirst){
+if(!tmpT){alert('Trump choose karo');return}
+trump=tmpT; bids[myName]=b; initialBid=b; initialBidder=players.indexOf(myName);
+overcallOrder=[]; for(let i=1;i<=3;i++){ overcallOrder.push((initialBidder+i)%players.length); } overcallIdx=0;
+document.getElementById('bidModal').classList.add('hidden'); tmpT="";
+broadcast({type:'firstBid',trump:trump,bids:bids,bidder:bidder,initialBidder:initialBidder,initialBid:initialBid,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
+updateUI(); if(isHost) setTimeout(startOvercallPhase,500);
+}else{
+bids[myName]=b; document.getElementById('bidModal').classList.add('hidden'); tmpT="";
+broadcast({type:'bid',bids:bids}); updateUI();
+if(isHost){let nextIdx=(players.indexOf(myName)+1)%players.length; if(nextIdx==bidder) nextIdx=(nextIdx+1)%players.length;setTimeout(function(){checkBidsAndContinue(nextIdx);},300);}
+}}
+function updateUI(){
+document.getElementById('gno').innerText=gameNo; 
+document.getElementById('dealer').innerText=players[dealer]||'-'; 
+document.getElementById('bidder').innerText=players[bidder]||'-'; 
+document.getElementById('trump').innerText=trump||'?';
+let tc=document.getElementById('trumpCenter'); if(tc){tc.innerText=trump||'';tc.className='trumpCenter '+(trump=='♥'||trump=='♦'?'red':'');}
+let tb=document.getElementById('trumpBadge'); if(tb){tb.innerText=trump?'TRUMP: '+trump+' ('+(bids[players[bidder]]||'')+')':'TRUMP: ?';tb.style.display=trump?'block':'none';}
+let bar=document.getElementById('turnBar'); if(players[turn]==myName){bar.classList.remove('hidden');bar.innerText='Your turn! Trump:'+(trump||'?')+' by '+players[bidder];}else{bar.classList.add('hidden');}
+let bhtml=''; for(let i=0;i<players.length;i++){let p=players[i]; bhtml+=p+':Bid '+(bids[p]!=null?bids[p]:'-')+(i==bidder?' (T)':'')+' ';} document.getElementById('bids').innerHTML=bhtml;
+let shtml=''; for(let i=0;i<players.length;i++){let p=players[i]; shtml+=p+':'+(scores[p]||0)+'('+(extra[p]||0)+') ';} document.getElementById('scores').innerHTML=shtml;
+for(let seat=0;seat<4;seat++){
+  let p=getPlayerAtSeat(seat);
+  let id=["A","B","C","D"][seat];
+  if(!p) continue;
+  let tag=document.getElementById('tag-'+id);
+  if(tag){let b=bids[p]!=null?bids[p]:'-';let w=tricksWon[p]!=null?tricksWon[p]:0;tag.innerHTML=p+'<br><b>'+b+'/'+w+'</b>'+(players.indexOf(p)==bidder?' T':'');}
+  let av=document.getElementById('av-'+id);
+  if(av){av.innerText=p[0];if(players.indexOf(p)==turn)av.classList.add('active');else av.classList.remove('active');}
+}
+for(let i=0;i<players.length;i++){let p=players[i];let pe=document.getElementById('p'+i);let se=document.getElementById('sc'+i);let be=document.getElementById('bg'+i);if(pe)pe.innerText=p||["A","B","C","D"][i];if(se)se.innerText=scores[p]||0;if(be)be.innerText=extra[p]||0;}}
+function getValidCards(hand){if(center.length==0){let arr=[];for(let i=0;i<hand.length;i++)arr.push(i);return arr;}let lead=center[0].s;let has=false;for(let i=0;i<hand.length;i++) if(hand[i].s==lead) has=true;if(has){let arr=[];for(let i=0;i<hand.length;i++) if(hand[i].s==lead) arr.push(i); return arr;}let arr2=[];for(let i=0;i<hand.length;i++)arr2.push(i);return arr2;}
+function getThrowClass(who){let myIdx=getMyIdx(); let pIdx=players.indexOf(who); let seat=(pIdx - myIdx +4)%4; if(seat==0) return 'throw-bottom';if(seat==1) return 'throw-left';if(seat==2) return 'throw-top';return 'throw-right';}
+function getWinClass(who){let myIdx=getMyIdx(); let pIdx=players.indexOf(who); let seat=(pIdx - myIdx +4)%4; if(seat==0) return 'win-to-A';if(seat==1) return 'win-to-B';if(seat==2) return 'win-to-C';return 'win-to-D';}
+function renderAll(){
+for(let seat=0;seat<4;seat++){
+  let p=getPlayerAtSeat(seat);
+  let id=["A","B","C","D"][seat];
+  let cont=document.getElementById('hand-'+id); if(!cont)continue;
+  if(!p){cont.innerHTML=''; continue;}
+  let h=[]; for(let c of (hands[p]||[])) h.push(c); h.sort(sortBySuit);
+  if(p==myName){
+    let html=''; 
+    for(let idx=0;idx<h.length;idx++){
+      let c=h[idx]; let isValid=true; 
+      if(center.length>0){let lead=center[0].s; let has=false; for(let k=0;k<h.length;k++) if(h[k].s==lead) has=true; if(has) isValid=c.s==lead;}
+      html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+(isValid?'':' disabled')+'" onclick="playCardById(\''+c.id+'\')"><div class="rank">'+c.r+'</div><div class="suit">'+c.s+'</div><div class="rank" style="font-size:8px">'+c.r+'</div></div>';
+    }
+    cont.innerHTML=html;
+  }else{ 
+    let html=''; for(let i=0;i<h.length;i++) html+='<div class="card back"></div>'; 
+    cont.innerHTML=html; 
+  }
+}
+let cc=document.getElementById('centerCards'); 
+if(cc){
+let html=''; 
+for(let i=0;i<center.length;i++){
+let c=center[i]; 
+let pIdx=players.indexOf(c.who);
+let myIdx=getMyIdx();
+let seat=(pIdx - myIdx +4)%4;
+let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D'; 
+let throwCls = (i==center.length-1) ? getThrowClass(c.who) : ''; 
+html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+' '+posClass+' '+throwCls+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:26px">'+c.s+'</div><div class="whoLabel">'+c.who+'</div></div>';
+} 
+cc.innerHTML=html;
+}
+}
+function showNotYourTurn(who){ if(players[turn]==myName) return; showToast('❌ NOT YOUR TURN - '+players[turn]+' ka turn hai!'); }
+function playCardById(cardId){
+let hand=hands[myName]||[];
+if(players[turn]!=myName){ showNotYourTurn(players[turn]); return; }
+let cardToPlay=null; let realIdx=-1;
+for(let i=0;i<hand.length;i++){ if(hand[i].id==cardId){ cardToPlay=hand[i]; realIdx=i; break; } }
+if(!cardToPlay) return;
+let alreadyPlayed=center.some(c=>c.who==myName);
+if(alreadyPlayed){showToast('Already played!'); return;}
+if(center.length>0){
+let lead=center[0].s; let has=false;
+for(let c of hand) if(c.s==lead) has=true;
+if(has && cardToPlay.s!=lead){showToast('Rule: '+lead+' hai to '+lead+' hi dalo!'); return;}
+}
+clearTurnTimer();
+hand.splice(realIdx,1);
+let newCard={s:cardToPlay.s,r:cardToPlay.r,p:cardToPlay.p,id:cardToPlay.id,who:myName};
+center.push(newCard);
+renderAll(); updateUI();
+if(isHost){ nextTurnHost(); }else{ broadcast({type:'playCard',card:cardToPlay,who:myName}); }
+}
+function botPlay(){let who=players[turn]; if(!who) return; if(!isBotPlayer(who)) return; let h=hands[who]; if(!h) return; let validIdx=getValidCards(h); if(validIdx.length===0) return;let chosenIdx=validIdx[rnd(validIdx.length)]; let card=h[chosenIdx]; if(!card) return;let idx=-1; for(let i=0;i<h.length;i++){ if(h[i].id===card.id){ idx=i; break; } }if(idx>=0) h.splice(idx,1); else return;clearTurnTimer();center.push({s:card.s,r:card.r,p:card.p,id:card.id,who:who}); nextTurnHost();}
+function nextTurnHost(){
+if(!isHost) return;
+clearTurnTimer();
+turn=(turn+1)%players.length;
+renderAll(); updateUI();
+if(center.length<4){
+  broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});
+  startTurnTimer();
+  if(isBotPlayer(players[turn])) setTimeout(botPlay,700);
+}else{
+  setTimeout(endTrickHost,1100);
+}
+}
+function endTrickHost(){let lead=center[0].s; let win=center[0];for(let i=1;i<center.length;i++){let c=center[i]; if(c.s==trump&&win.s!=trump) win=c; else if(c.s==trump&&win.s==trump&&c.p>win.p) win=c; else if(c.s==lead&&win.s==lead&&win.s!=trump&&c.p>win.p) win=c;}tricksWon[win.who]=(tricksWon[win.who]||0)+1;let winCls=getWinClass(win.who);let cc=document.getElementById('centerCards');if(cc){ let els=cc.querySelectorAll('.card'); for(let i=0;i<els.length;i++) els[i].classList.add(winCls); }setTimeout(function(){center=[]; let winIdx=0; for(let i=0;i<players.length;i++) if(players[i]==win.who) winIdx=i; turn=winIdx; trick++;broadcast({type:'trickEnd',tricksWon:tricksWon,turn:turn,trick:trick,center:center});updateUI(); renderAll(); startTurnTimer(); if(trick>13){ setTimeout(endGameHost,500); } else { if(isBotPlayer(players[turn])) setTimeout(botPlay,700); }},700);}
+function endGameHost(){let roundEntries=[];for(let i=0;i<players.length;i++){let p=players[i]; let bid=bids[p]; let won=tricksWon[p]; let delta=0;if(won>=bid){delta=bid*10+(won-bid);scores[p]+=delta;extra[p]+=(won-bid);} else{delta=-bid*10;scores[p]+=delta;}roundEntries.push({round:gameNo,player:p,bid:bid,won:won,delta:delta,total:scores[p],bag:extra[p]});if(extra[p]>=10){scores[p]-=100;extra[p]-=10;}}historyLog=historyLog.concat(roundEntries);let nextGame=gameNo+1; broadcast({type:'gameOver',scores:scores,extra:extra,nextGame:nextGame,historyLog:historyLog});if(nextGame>15){showFinal();} else{gameNo=nextGame;showHistoryAuto();}}
+function showHistory(){renderHistory();document.getElementById('historyModal').classList.remove('hidden');}
+function closeHistory(){document.getElementById('historyModal').classList.add('hidden');}
+function showHistoryAuto(){renderHistory();document.getElementById('historyModal').classList.remove('hidden');}
+function nextRoundStart(){closeHistory();if(isHost)hostStartGame();}
+function renderHistory(){let html='<table class="histTable"><tr><th>Rnd</th><th>Player</th><th>Bid</th><th>Bane</th><th>+/-</th><th>Total</th><th>Bagh</th></tr>';if(historyLog.length===0){ html+='<tr><td colspan="7">Abhi koi round nahi</td></tr>'; }else{let rounds={};for(let e of historyLog){ if(!rounds[e.round]) rounds[e.round]=[]; rounds[e.round].push(e); }let sortedRounds=Object.keys(rounds).sort((a,b)=>a-b);for(let rnd of sortedRounds){let entries=rounds[rnd];for(let e of entries){let cls=e.delta>=0?'pos':'neg';let sign=e.delta>0?'+'+e.delta:e.delta;html+='<tr><td>'+e.round+'</td><td style="font-weight:700">'+e.player+'</td><td>'+e.bid+'</td><td>'+e.won+'</td><td class="'+cls+'">'+sign+'</td><td style="font-weight:800;color:#ffca28">'+e.total+'</td><td>'+e.bag+'</td></tr>';}html+='<tr class="overall-row"><td colspan="7">▶ Rnd '+rnd+' ke baad Overall: '+entries.map(x=>x.player+'- '+x.total+' pts +'+x.bag+' Bagh').join(' | ')+'</td></tr>';}}html+='</table>';if(historyLog.length>0){let lastRound=Math.max(...historyLog.map(e=>e.round));let lastEntries=historyLog.filter(e=>e.round==lastRound);html+='<div style="margin-top:12px;font-size:13px;color:#ffca28;font-weight:800">🏆 Overall Score - All Players</div><div class="overall-badges">';for(let e of lastEntries){html+='<div class="overall-badge">'+e.player+'<br><b>'+e.total+' Points</b><br>🎒 '+e.bag+' Bagh</div>';}html+='</div>';}document.getElementById('historyContent').innerHTML=html;}
+function showFinal(){document.getElementById('modal').classList.remove('hidden');let win=players[0],max=scores[win]||0;for(let i=1;i<players.length;i++){if((scores[players[i]]||0)>max){max=scores[players[i]];win=players[i];}}let div='';for(let i=0;i<players.length;i++){let p=players[i];div+='<div class="bidbox">'+p+': '+scores[p]+' pts Bag '+extra[p]+'</div>';}document.getElementById('modal').innerHTML='<div class="modalBox"><h3>🏆 Final Winner: '+win+'</h3><div>'+div+'</div><button class="btn bg" onclick="showHistory()">History</button><button class="btn by" onclick="location.reload()">Naya 15 Games</button></div>';}
+function toggleEmojiBar(){let bar=document.getElementById('emojiBar');bar.classList.toggle('open');}
+function sendEmoji(e){showEmojiLocal(myName, e);try{broadcast({type:'reaction', from:myName, emoji:e});}catch(err){} document.getElementById('emojiBar').classList.remove('open');}
+function showEmojiLocal(from, emoji){let myIdx=getMyIdx(); let pIdx=players.indexOf(from); let seat=(pIdx - myIdx +4)%4; let id=["A","B","C","D"][seat];let seatEl=document.getElementById('seat-'+id);if(!seatEl) return;let el=document.createElement('div');el.className='emojiReact';el.innerText=emoji;seatEl.appendChild(el);setTimeout(()=>{try{el.remove();}catch{}},2200);}
+</script>
+</body>
+</html>
