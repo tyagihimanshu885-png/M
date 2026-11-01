@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trump Premium - FINAL CONNECTION FIX</title>
+<title>Trump Premium - FINAL SLOTS FIX</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -91,7 +91,7 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <div class="player p-top" id="seat-C"><div class="avatar" id="av-C">C</div><div class="nameTag" id="tag-C">C<br><b>0/4</b></div><div class="cards" id="hand-C"></div></div>
 <div class="player p-left" id="seat-B"><div class="avatar" id="av-B">B</div><div class="nameTag" id="tag-B">B<br><b>0/3</b></div><div class="cards" id="hand-B"></div></div>
 <div class="player p-right" id="seat-D"><div class="avatar" id="av-D">D</div><div class="nameTag" id="tag-D">D<br><b>0/2</b></div><div class="cards" id="hand-D"></div></div>
-<div class="centerWrap"><div id="trumpBadge" class="trumpBadge">TRUMP: ?</div><div id="trumpCenter" class="trumpCenter"></div><div id="timerBar">⏱ 60s</div><div id="centerCards" class="centerCards"></div></div>
+<div class="centerWrap"><div id="trumpBadge" class="trumpBadge">TRUMP: ?</div><div id="trumpCenter" class="trumpCenter"></div><div id="timerBar">⏱ 30s</div><div id="centerCards" class="centerCards"></div></div>
 <div id="turnBar" class="turnBar hidden">Your turn!</div>
 <div class="player p-bottom" id="seat-A"><div class="avatar" id="av-A">A</div><div class="nameTag" id="tag-A">A<br><b>0/4</b></div>
 <div class="scoreBoard"><table><tr><th>Player</th><th>Score</th><th>Bagh</th></tr><tr><td id="p0">A</td><td id="sc0">0</td><td id="bg0">0</td></tr><tr><td id="p1">B</td><td id="sc1">0</td><td id="bg1">0</td></tr><tr><td id="p2">C</td><td id="sc2">0</td><td id="bg2">0</td></tr><tr><td id="p3">D</td><td id="sc3">0</td><td id="bg3">0</td></tr></table></div>
@@ -102,8 +102,8 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <div id="emojiToggleBtn" onclick="toggleEmojiBar()">😀</div>
 <div id="emojiBar"><button onclick="sendEmoji('😂')">😂</button><button onclick="sendEmoji('🥳')">🥳</button><button onclick="sendEmoji('😎')">😎</button><button onclick="sendEmoji('❤️')">❤️</button><button onclick="sendEmoji('😡')">😡</button><button onclick="sendEmoji('😟')">😟</button></div>
 <div id="modal" class="modal"><div class="modalBox">
-<h3 style="color:#ffca28">🃏 Trump Premium - CONNECTION FIX</h3>
-<p style="font-size:10px;color:#00e676;margin:6px 0">✅ PUBLIC CLOUD + My Server - Auto Retry - LAN 1 sec me</p>
+<h3 style="color:#ffca28">🃏 Trump Premium - SLOTS FIX</h3>
+<p style="font-size:10px;color:#00e676;margin:6px 0">✅ 4 SLOTS = HUMAN/BOT SAME - 30s Timer</p>
 <input id="myName" placeholder="Tumhara Naam" value="">
 <div id="connLog">Log: Ready...</div>
 <div style="margin-top:10px;text-align:left;background:rgba(0,0,0,.3);padding:8px;border-radius:8px">
@@ -118,7 +118,7 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <div class="row"><input id="joinIdLAN" placeholder="LAN Room ID" style="flex:1"><button class="btn bg" id="btnLANJoin" onclick="joinRoom(true)">📶 LAN JOIN</button></div>
 </div>
 <div id="autoJoinMsg" style="font-size:11px;color:#00e676;margin-top:6px"></div>
-<div id="serverStatus" style="font-size:10px;color:#ffca28;margin-top:6px">CONNECTION FIX READY</div>
+<div id="serverStatus" style="font-size:10px;color:#ffca28;margin-top:6px">SLOTS FIX READY</div>
 <div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo (2/3/4)</button></div>
 </div></div>
 <div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28" id="lobbyTitle">🟢 Room Ban Gaya</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div>
@@ -161,10 +161,10 @@ async function wakeMyServer(){
     if(st) st.innerText = '⏳ PUBLIC CLOUD try...';
     logConn('PUBLIC CLOUD se connect try - 2 sec me room banega...');
     await fetch('https://trump-server-hy49.onrender.com/', {mode:'no-cors', cache:'no-store'});
-    if(st) st.innerText = '✅ PUBLIC CLOUD + MY SERVER READY - LAN 1 sec me';
+    if(st) st.innerText = '✅ PUBLIC CLOUD + MY SERVER READY - 4 SLOTS';
     logConn('MY SERVER bhi ready - backup');
   }catch(e){ 
-    if(st) st.innerText = '✅ PUBLIC CLOUD READY - Best for LAN + ONLINE';
+    if(st) st.innerText = '✅ PUBLIC CLOUD READY - 4 SLOTS';
     logConn('PUBLIC CLOUD READY - Room banao');
   }
 }
@@ -189,7 +189,7 @@ window.addEventListener('load', function(){
 });
 let myName="",roomId="",peer=null,conns={},isHost=true,players=[],dealer=0,bidder=1,gameNo=1,scores={},extra={},hands={},bids={},trump="",tricksWon={},center=[],turn=0,trick=1,deck=[],isBotGame=true,gameStarted=false,historyLog=[],initialBidder=0,initialBid=0;
 let overcallOrder=[],overcallIdx=0;
-let turnTimer=null,turnTimeLeft=60,originalNames={},bidTimer=null;
+let turnTimer=null,turnTimeLeft=30,originalNames={},bidTimer=null;
 let trumpLocked=false;
 const suits=["♠","♥","♦","♣"],ranks=["A","K","Q","J","10","9","8","7","6","5","4","3","2"],pow={A:14,K:13,Q:12,J:11,"10":10,"9":9,"8":8,"7":7,"6":6,"5":5,"4":4,"3":3,"2":2};
 function rnd(n){return Math.floor(Math.random()*n)}
@@ -197,11 +197,11 @@ function isBotPlayer(name){ if(!name) return true; return name=='B' || name=='C'
 function mkDeck(){let d=[]; for(let s of suits){ for(let r of ranks){ d.push({s:s,r:r,p:pow[r],id:s+"_"+r}); } } for(let i=d.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); let t=d[i]; d[i]=d[j]; d[j]=t; } return d;}
 function sortBySuit(a,b){let o={'♠':0,'♥':1,'♦':2,'♣':3}; if(o[a.s]!=o[b.s]) return o[a.s]-o[b.s]; return b.p-a.p;}
 function showToast(msg){let t=document.getElementById('toast');t.innerText=msg;t.style.display='block';setTimeout(()=>{t.style.display='none';},2000);}
-function startTurnTimer(){clearTurnTimer();turnTimeLeft=60;let tb=document.getElementById('timerBar');if(tb){tb.style.display='block';}updateTimerUI();turnTimer=setInterval(()=>{turnTimeLeft--;updateTimerUI();if(turnTimeLeft<=0){clearTurnTimer();handleTurnTimeout();}},1000);}
+function startTurnTimer(){clearTurnTimer();turnTimeLeft=30;let tb=document.getElementById('timerBar');if(tb){tb.style.display='block';}updateTimerUI();turnTimer=setInterval(()=>{turnTimeLeft--;updateTimerUI();if(turnTimeLeft<=0){clearTurnTimer();handleTurnTimeout();}},1000);}
 function clearTurnTimer(){if(turnTimer){clearInterval(turnTimer); turnTimer=null;}let tb=document.getElementById('timerBar');if(tb){tb.style.display='none';}}
 function updateTimerUI(){let tb=document.getElementById('timerBar');if(tb){tb.innerText='⏱ '+turnTimeLeft+'s';if(turnTimeLeft<=10){tb.style.background='#c62828'; tb.style.color='#fff';}else {tb.style.background='rgba(0,0,0,.7)'; tb.style.color='#ffca28';}}}
 function handleTurnTimeout(){let who=players[turn];if(!who) return;if(isBotPlayer(who)){if(isHost) botPlay();return;}showToast('⏰ '+who+' jaldi chalo! - Koi auto nahi'); startTurnTimer();}
-function startBidTimer(cb){clearBidTimer();bidTimer=setTimeout(()=>{if(cb) cb();},60000);}
+function startBidTimer(cb){clearBidTimer();bidTimer=setTimeout(()=>{if(cb) cb();},30000);}
 function clearBidTimer(){if(bidTimer){clearTimeout(bidTimer); bidTimer=null;}}
 function renderLobby(){let html='';for(let i=0;i<4;i++){let p=players[i];if(p){html+='<div class="playerSlot joined">✅ '+(i+1)+'. '+p+(i==0?' (Host)':'')+' - Joined</div>';}else{html+='<div class="playerSlot">⏳ '+(i+1)+'. Waiting - Join dabate hi add hoga</div>';}}let lp=document.getElementById('lobbyPlayers');let wp=document.getElementById('waitingPlayers');if(lp) lp.innerHTML=html;if(wp) wp.innerHTML=html;}
 function ensureFourPlayers(){ while(players.length<4){ let b='B'; if(players.indexOf('B')==-1) b='B'; else if(players.indexOf('C')==-1) b='C'; else if(players.indexOf('D')==-1) b='D'; else b='Bot'+(players.length+1); players.push(b); } }
@@ -413,7 +413,7 @@ let who=players[pIdx];
 if(who==null){ dealRestHost(); return; }
 if(who==myName){ showOvercallModal(who); }
 else if(isBotPlayer(who) && isHost){ setTimeout(botOvercall,600); }
-else if(isHost){ showToast(players[pIdx]+' ka overcall wait - Koi auto nahi'); }
+else if(isHost){ showToast(players[pIdx]+' ka overcall wait - 30s'); startTurnTimer(); }
 }
 function continueOvercall(){ startOvercallPhase(); }
 function botOvercall(){
@@ -445,7 +445,7 @@ document.getElementById('overcallCards').innerHTML=cardsHtml;
 let opts=''; for(let i=minBid;i<=8;i++){ opts+='<option value="'+i+'">'+i+'</option>'; }
 document.getElementById('overcallBtns').innerHTML='<select id="overcallBidSel">'+opts+'</select> <button class="btn by" onclick="confirmOvercall()">Kaato +1</button> <button class="btn br" onclick="passOvercall()">Pass</button>';
 document.getElementById('overcallTrumpBtns').innerHTML='Naya Trump: <button class="btn bg" onclick="setOvercallTmp(\'♠\')">♠</button><button class="btn bg" onclick="setOvercallTmp(\'♥\')">♥</button><button class="btn bg" onclick="setOvercallTmp(\'♦\')">♦</button><button class="btn bg" onclick="setOvercallTmp(\'♣\')">♣</button> <b id="overcallTmpShow">?</b>';
-clearBidTimer();
+clearBidTimer(); startTurnTimer();
 }
 let overcallTmp=""; function setOvercallTmp(s){overcallTmp=s; document.getElementById('overcallTmpShow').innerText=s}
 function confirmOvercall(){
@@ -454,47 +454,69 @@ let currentBid=bids[bidder]||initialBid; let minBid=currentBid+1;
 if(b<minBid){alert('Kam se kam '+minBid+' chahiye');return;}
 if(!overcallTmp){alert('Trump choose karo');return;}
 trump=overcallTmp; bids[myName]=b; bidder=players.indexOf(myName);
-document.getElementById('overcallModal').classList.add('hidden'); overcallTmp=""; clearBidTimer();
+document.getElementById('overcallModal').classList.add('hidden'); overcallTmp=""; clearBidTimer(); clearTurnTimer();
 overcallIdx++;
 broadcast({type:'overcall',trump:trump,bids:bids,bidder:bidder,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
 updateUI(); if(isHost) setTimeout(continueOvercall,400);
 }
 function passOvercall(){
-document.getElementById('overcallModal').classList.add('hidden'); overcallTmp=""; clearBidTimer();
+document.getElementById('overcallModal').classList.add('hidden'); overcallTmp=""; clearBidTimer(); clearTurnTimer();
 overcallIdx++;
 broadcast({type:'overcall',trump:trump,bids:bids,bidder:bidder,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
 updateUI(); if(isHost) setTimeout(continueOvercall,300);
 }
 function dealRestHost(){
-document.getElementById('overcallModal').classList.add('hidden'); clearBidTimer();
+document.getElementById('overcallModal').classList.add('hidden'); clearBidTimer(); clearTurnTimer();
 for(let i=0;i<players.length;i++){let p=players[i]; if(hands[p] && hands[p].length===5){ hands[p]=hands[p].concat(deck.splice(0,8)); } }
 deck=[]; trumpLocked=true;
 document.getElementById('phase').innerText='Final Trump LOCKED: '+trump+' by '+players[bidder]+' ('+bids[players[bidder]]+') - 13 chaal tak same';
 broadcast({type:'deal',hands:hands,dealer:dealer,bidder:bidder,gameNo:gameNo,trump:trump,bids:bids,scores:scores,extra:extra,deck:[],initialBidder:initialBidder,initialBid:initialBid,overcallOrder:[],overcallIdx:0});
-updateUI(); renderAll();let next=(bidder+1)%players.length; checkBidsAndContinue(next);
+updateUI(); renderAll();
+let next=(bidder+1)%players.length; 
+checkBidsAndContinue(next);
 }
+// === FINAL SLOTS FIX - 4 SLOTS LOGIC ===
 function checkBidsAndContinue(startIdx){
   if(startIdx===undefined) startIdx=(bidder+1)%players.length;
-  if(Object.keys(bids).length>=players.length){ if(isHost) startTricksHost(); return; }
-  let idx=startIdx,attempts=0;
-  while(attempts<10){
-    if(Object.keys(bids).length>=players.length) break;
-    let who=players[idx];
+  // Check if all 4 slots have bid
+  let allBid = true;
+  for(let i=0;i<players.length;i++){
+    if(bids[players[i]]==null) { allBid=false; break; }
+  }
+  if(allBid){ if(isHost) startTricksHost(); return; }
+
+  // Find next slot in circular order from startIdx that hasn't bid - 4 SLOTS, not human/bot
+  for(let offset=0; offset<players.length; offset++){
+    let idx = (startIdx + offset) % players.length;
+    let who = players[idx];
     if(bids[who]==null){
-      if(who==myName){ showBidModal(who,13,false); return; }
-      else if(isBotPlayer(who) && isHost){
+      // SLOT FOUND - Now check if bot or human for timer
+      if(isBotPlayer(who) && isHost){
+        // BOT = AUTO
         let hb=hands[who]||[]; let high=0; for(let c of hb) if(c.r=='A'||c.r=='K'||c.r=='Q') high++;
         let tc=0; for(let c of hb) if(c.s==trump) tc++;
-        let b=Math.max(1,Math.min(8,Math.floor(high/1.5)+Math.floor(tc/2)+rnd(2)));
-        bids[who]=b; broadcast({type:'bid',bids:bids}); updateUI();
+        let b=Math.max(1,Math.min(10,Math.floor(high/1.5)+Math.floor(tc/2)+rnd(2)+1));
+        bids[who]=b; 
+        broadcast({type:'bid',bids:bids}); 
+        updateUI();
+        setTimeout(()=>checkBidsAndContinue((idx+1)%players.length), 500);
+        return;
       }else{
-        if(isHost){ broadcast({type:'bidRequest', who:who, trump:trump, bids:bids}); showToast(players[idx]+' ka bid wait - Koi auto nahi'); }
+        // HUMAN = 30 SEC TIMER + WAIT
+        if(isHost){
+          broadcast({type:'bidRequest', who:who, trump:trump, bids:bids});
+          showToast(who+' ka bid wait - 30s');
+          startTurnTimer();
+        }
+        if(who==myName){
+          showBidModal(who,13,false);
+        }
         return;
       }
     }
-    idx=(idx+1)%players.length; if(idx==bidder) idx=(idx+1)%players.length; attempts++;
   }
-  if(Object.keys(bids).length>=players.length && isHost){ startTricksHost(); }
+  // No unbid slot left
+  if(isHost) startTricksHost();
 }
 function startTricksHost(){turn=bidder; trick=1; center=[]; tricksWon={}; for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;document.getElementById('uiBox').classList.add('hideGame');broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});updateUI(); renderAll(); startTurnTimer(); if(isBotPlayer(players[turn])) setTimeout(botPlay,700);}
 function getMyIdx(){ let idx=players.indexOf(myName); return idx>=0?idx:0; }
@@ -512,10 +534,11 @@ document.getElementById('bidCards').innerHTML=cardsHtml;
 let opts=''; for(let i=1;i<=(isFirst?7:10);i++){ opts+='<option value="'+i+'" '+(i==4?'selected':'')+'>'+i+'</option>'; }
 document.getElementById('bidBtns').innerHTML='Bid: <select id="bidSel">'+opts+'</select> <button class="btn by" onclick="confirmBid('+isFirst+')">Lock</button>';
 document.getElementById('trumpBtns').innerHTML=isFirst?'Trump: <button class="btn bg" onclick="setTmp(\'♠\')">♠</button><button class="btn bg" onclick="setTmp(\'♥\')">♥</button><button class="btn bg" onclick="setTmp(\'♦\')">♦</button><button class="btn bg" onclick="setTmp(\'♣\')">♣</button> <b id="tmpShow">?</b>':'';
+startTurnTimer();
 }
 let tmpT="";function setTmp(s){tmpT=s;document.getElementById('tmpShow').innerText=s}
 function confirmBid(isFirst){
-clearBidTimer();
+clearBidTimer(); clearTurnTimer();
 let b=parseInt(document.getElementById('bidSel').value);
 if(isFirst){
 if(!tmpT){alert('Trump choose karo');return}
@@ -527,7 +550,7 @@ updateUI(); if(isHost) setTimeout(startOvercallPhase,500);
 }else{
 bids[myName]=b; document.getElementById('bidModal').classList.add('hidden'); tmpT="";
 broadcast({type:'bid',bids:bids}); updateUI();
-if(isHost){let nextIdx=(players.indexOf(myName)+1)%players.length; if(nextIdx==bidder) nextIdx=(nextIdx+1)%players.length;setTimeout(function(){checkBidsAndContinue(nextIdx);},300);}
+if(isHost){setTimeout(()=>checkBidsAndContinue((players.indexOf(myName)+1)%players.length),300);}
 }}
 function updateUI(){
 document.getElementById('gno').innerText=gameNo; 
@@ -612,13 +635,19 @@ function botPlay(){let who=players[turn]; if(!who) return; if(!isBotPlayer(who))
 function nextTurnHost(){
 if(!isHost) return;
 clearTurnTimer();
-turn=(turn+1)%players.length;
-renderAll(); updateUI();
-if(center.length<4){
+// === FIX BUG 1 - 4th card bhi broadcast karo ===
+if(center.length<=4){
+  // Always broadcast current center to all friends - including 4th card!
   broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});
-  startTurnTimer();
+  renderAll(); updateUI();
+}
+if(center.length<4){
+  turn=(turn+1)%players.length;
+  broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});
+  renderAll(); updateUI(); startTurnTimer();
   if(isBotPlayer(players[turn])) setTimeout(botPlay,700);
 }else{
+  // 4 cards complete - sab ko dikh gaya ab 1.1 sec baad win
   setTimeout(endTrickHost,1100);
 }
 }
