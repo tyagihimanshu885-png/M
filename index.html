@@ -6,7 +6,7 @@
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',system-ui}
 body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .felt{position:fixed;inset:0;background:#0e5a2f;display:flex;align-items:center;justify-content:center}
@@ -83,9 +83,37 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .shareBox{background:#0e3a2e;border:2px solid #ffca28;border-radius:10px;padding:10px;margin:10px 0;text-align:left}
 .shareLink{word-break:break-all;background:rgba(0,0,0,.5);padding:6px 8px;border-radius:6px;font-size:12px;color:#00e676;margin:6px 0}
 #qrcodeLobby{display:flex;justify-content:center;margin:8px 0;background:#fff;padding:8px;border-radius:8px}
+
+/* ==== GOLU LOADING ANIMATION ==== */
+#goluLoader{position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a7a44 0%,#0e5a2f 70%);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.goluCards{position:relative;width:300px;height:200px}
+.goluCard{position:absolute;width:90px;height:130px;background:#fff;border-radius:10px;border:3px solid #ffca28;box-shadow:0 8px 20px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#0e5a2f;opacity:0}
+.goluCard.c1{left:0;top:20px;animation:goluFly1 0.8s 0.1s cubic-bezier(0.175,0.885,0.32,1.275) forwards}
+.goluCard.c2{left:75px;top:0;animation:goluFly2 0.8s 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards}
+.goluCard.c3{left:150px;top:0;animation:goluFly3 0.8s 0.7s cubic-bezier(0.175,0.885,0.32,1.275) forwards}
+.goluCard.c4{left:210px;top:20px;animation:goluFly4 0.8s 1.0s cubic-bezier(0.175,0.885,0.32,1.275) forwards}
+@keyframes goluFly1{0%{transform:translate(-300px,-300px) rotate(-180deg) scale(0);opacity:0}100%{transform:translate(0,0) rotate(-10deg) scale(1);opacity:1}}
+@keyframes goluFly2{0%{transform:translate(0,-300px) rotate(180deg) scale(0);opacity:0}100%{transform:translate(0,0) rotate(5deg) scale(1);opacity:1}}
+@keyframes goluFly3{0%{transform:translate(300px,-300px) rotate(-180deg) scale(0);opacity:0}100%{transform:translate(0,0) rotate(-5deg) scale(1);opacity:1}}
+@keyframes goluFly4{0%{transform:translate(300px,0) rotate(180deg) scale(0);opacity:0}100%{transform:translate(0,0) rotate(10deg) scale(1);opacity:1}}
+.goluText{margin-top:30px;color:#ffca28;font-weight:900;font-size:22px;letter-spacing:2px;opacity:0;animation:goluTextPop 0.5s 1.5s forwards}
+@keyframes goluTextPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+#goluLoader.hide{animation:loaderOut 0.6s 2.2s forwards}
+@keyframes loaderOut{to{transform:translateY(-100%);opacity:0;pointer-events:none}}
 </style>
 </head>
 <body>
+<!-- LOADING ANIMATION BY GOLU -->
+<div id="goluLoader">
+  <div class="goluCards">
+    <div class="goluCard c1" style="background:#ffca28;color:#000">TRUMP</div>
+    <div class="goluCard c2" style="background:#fff;color:#0e5a2f">GAME</div>
+    <div class="goluCard c3" style="background:#fff;color:#c62828">BY</div>
+    <div class="goluCard c4" style="background:#1565c0;color:#fff">GOLU</div>
+  </div>
+  <div class="goluText">🃏 SHUFFLING CARDS...</div>
+</div>
+
 <div class="felt"><div class="table">
 <div class="player p-top" id="seat-C"><div class="avatar" id="av-C">C</div><div class="nameTag" id="tag-C">C<br><b>0/4</b></div><div class="cards" id="hand-C"></div></div>
 <div class="player p-left" id="seat-B"><div class="avatar" id="av-B">B</div><div class="nameTag" id="tag-B">B<br><b>0/3</b></div><div class="cards" id="hand-B"></div></div>
@@ -171,6 +199,8 @@ window.addEventListener('load', function(){
     let r = params.get('room');
     if(r){ r = r.toUpperCase().trim(); document.getElementById('joinId').value = r; document.getElementById('autoJoinMsg').innerHTML = '🔗 Room: <b>'+r+'</b> - Naam likh ke JOIN!'; document.getElementById('myName').focus(); logConn('Link se Room mila: '+r); }
   }catch(e){}
+  // Golu Loader hide after 2.8 sec
+  setTimeout(()=>{ let l=document.getElementById('goluLoader'); if(l) l.classList.add('hide'); },2800);
 });
 let myName="",roomId="",peer=null,conns={},isHost=true,players=[],dealer=0,bidder=1,gameNo=1,scores={},extra={},hands={},bids={},trump="",tricksWon={},center=[],turn=0,trick=1,deck=[],isBotGame=true,gameStarted=false,historyLog=[],initialBidder=0,initialBid=0;
 let overcallOrder=[],overcallIdx=0;
