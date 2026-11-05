@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trump Premium - FINAL SLOTS FIX</title>
+<title>Trump Premium</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -83,7 +83,6 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .shareBox{background:#0e3a2e;border:2px solid #ffca28;border-radius:10px;padding:10px;margin:10px 0;text-align:left}
 .shareLink{word-break:break-all;background:rgba(0,0,0,.5);padding:6px 8px;border-radius:6px;font-size:12px;color:#00e676;margin:6px 0}
 #qrcodeLobby{display:flex;justify-content:center;margin:8px 0;background:#fff;padding:8px;border-radius:8px}
-#connLog{font-size:10px;color:#ffe082;background:rgba(0,0,0,.5);padding:6px;border-radius:6px;margin:6px 0;text-align:left;max-height:80px;overflow:auto}
 </style>
 </head>
 <body>
@@ -102,23 +101,20 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <div id="emojiToggleBtn" onclick="toggleEmojiBar()">😀</div>
 <div id="emojiBar"><button onclick="sendEmoji('😂')">😂</button><button onclick="sendEmoji('🥳')">🥳</button><button onclick="sendEmoji('😎')">😎</button><button onclick="sendEmoji('❤️')">❤️</button><button onclick="sendEmoji('😡')">😡</button><button onclick="sendEmoji('😟')">😟</button></div>
 <div id="modal" class="modal"><div class="modalBox">
-<h3 style="color:#ffca28">🃏 Trump Premium - SLOTS FIX</h3>
-<p style="font-size:10px;color:#00e676;margin:6px 0">✅ 4 SLOTS = HUMAN/BOT SAME - 30s Timer</p>
-<input id="myName" placeholder="Tumhara Naam" value="">
-<div id="connLog">Log: Ready...</div>
+<h3 style="color:#ffca28">🃏 Trump Premium</h3>
+<input id="myName" placeholder="Tumhara Naam" value="" style="margin-top:8px;width:92%;padding:8px;border-radius:6px;border:none;">
 <div style="margin-top:10px;text-align:left;background:rgba(0,0,0,.3);padding:8px;border-radius:8px">
-<b style="color:#ffca28">🌐 ONLINE (Jio/Airtel - Sabka Data ON):</b>
 <div class="row" style="margin-top:6px"><button class="btn by" id="btnOnlineHost" onclick="createRoom(false)">ONLINE ROOM BANAO</button></div>
-<div class="row"><input id="joinId" placeholder="Online Room ID" style="flex:1"><button class="btn bb" id="btnOnlineJoin" onclick="joinRoom(false)">ONLINE JOIN</button></div>
+<div class="row"><input id="joinId" placeholder="Online Room ID" style="flex:1;padding:6px;border-radius:6px;border:none;"><button class="btn bb" id="btnOnlineJoin" onclick="joinRoom(false)">ONLINE JOIN</button></div>
 </div>
 <div style="margin-top:10px;text-align:left;background:rgba(156,39,176,.2);padding:8px;border-radius:8px;border:1px solid #9c27b0">
 <b style="color:#e1bee7">📶 LAN WIFI (1 Hotspot - Mini Militia):</b>
 <div style="font-size:9px;color:#ffe082;margin:4px 0">Host: Data ON + Hotspot ON -> LAN HOST dabao<br>Join: Data OFF + Host Hotspot se connect -> LAN JOIN</div>
 <div class="row" style="margin-top:6px"><button class="btn bp" id="btnLANHost" onclick="createRoom(true)">📶 LAN HOST - Room Banao</button></div>
-<div class="row"><input id="joinIdLAN" placeholder="LAN Room ID" style="flex:1"><button class="btn bg" id="btnLANJoin" onclick="joinRoom(true)">📶 LAN JOIN</button></div>
+<div class="row"><input id="joinIdLAN" placeholder="LAN Room ID" style="flex:1;padding:6px;border-radius:6px;border:none;"><button class="btn bg" id="btnLANJoin" onclick="joinRoom(true)">📶 LAN JOIN</button></div>
 </div>
 <div id="autoJoinMsg" style="font-size:11px;color:#00e676;margin-top:6px"></div>
-<div id="serverStatus" style="font-size:10px;color:#ffca28;margin-top:6px">SLOTS FIX READY</div>
+<div id="serverStatus" style="font-size:10px;color:#ffca28;margin-top:6px"></div>
 <div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo (2/3/4)</button></div>
 </div></div>
 <div id="onlineLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28" id="lobbyTitle">🟢 Room Ban Gaya</h3><div id="lobbyRoomCode" class="lobbyCode">TRUMP1234</div>
@@ -145,12 +141,10 @@ const PUBLIC_CFG = {config:{iceServers:ICE_SERVERS_FIX,iceCandidatePoolSize:10}}
 let isLANMode = false;
 let connAttempts = 0;
 function logConn(msg){
-  let el=document.getElementById('connLog');
   let el2=document.getElementById('lobbyConnLog');
   let el3=document.getElementById('waitingConnLog');
   let t=new Date().toLocaleTimeString();
   let line='['+t+'] '+msg+'<br>';
-  if(el) el.innerHTML = line + el.innerHTML;
   if(el2) el2.innerHTML = line + el2.innerHTML;
   if(el3) el3.innerHTML = line + el3.innerHTML;
   console.log(msg);
@@ -158,14 +152,11 @@ function logConn(msg){
 async function wakeMyServer(){
   let st = document.getElementById('serverStatus');
   try{
-    if(st) st.innerText = '⏳ PUBLIC CLOUD try...';
-    logConn('PUBLIC CLOUD se connect try - 2 sec me room banega...');
+    if(st) st.innerText = '';
     await fetch('https://trump-server-hy49.onrender.com/', {mode:'no-cors', cache:'no-store'});
-    if(st) st.innerText = '✅ PUBLIC CLOUD + MY SERVER READY - 4 SLOTS';
-    logConn('MY SERVER bhi ready - backup');
+    if(st) st.innerText = '';
   }catch(e){ 
-    if(st) st.innerText = '✅ PUBLIC CLOUD READY - 4 SLOTS';
-    logConn('PUBLIC CLOUD READY - Room banao');
+    if(st) st.innerText = '';
   }
 }
 wakeMyServer();
@@ -475,24 +466,18 @@ updateUI(); renderAll();
 let next=(bidder+1)%players.length; 
 checkBidsAndContinue(next);
 }
-// === FINAL SLOTS FIX - 4 SLOTS LOGIC ===
 function checkBidsAndContinue(startIdx){
   if(startIdx===undefined) startIdx=(bidder+1)%players.length;
-  // Check if all 4 slots have bid
   let allBid = true;
   for(let i=0;i<players.length;i++){
     if(bids[players[i]]==null) { allBid=false; break; }
   }
   if(allBid){ if(isHost) startTricksHost(); return; }
-
-  // Find next slot in circular order from startIdx that hasn't bid - 4 SLOTS, not human/bot
   for(let offset=0; offset<players.length; offset++){
     let idx = (startIdx + offset) % players.length;
     let who = players[idx];
     if(bids[who]==null){
-      // SLOT FOUND - Now check if bot or human for timer
       if(isBotPlayer(who) && isHost){
-        // BOT = AUTO
         let hb=hands[who]||[]; let high=0; for(let c of hb) if(c.r=='A'||c.r=='K'||c.r=='Q') high++;
         let tc=0; for(let c of hb) if(c.s==trump) tc++;
         let b=Math.max(1,Math.min(10,Math.floor(high/1.5)+Math.floor(tc/2)+rnd(2)+1));
@@ -502,7 +487,6 @@ function checkBidsAndContinue(startIdx){
         setTimeout(()=>checkBidsAndContinue((idx+1)%players.length), 500);
         return;
       }else{
-        // HUMAN = 30 SEC TIMER + WAIT
         if(isHost){
           broadcast({type:'bidRequest', who:who, trump:trump, bids:bids});
           showToast(who+' ka bid wait - 30s');
@@ -515,7 +499,6 @@ function checkBidsAndContinue(startIdx){
       }
     }
   }
-  // No unbid slot left
   if(isHost) startTricksHost();
 }
 function startTricksHost(){turn=bidder; trick=1; center=[]; tricksWon={}; for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;document.getElementById('uiBox').classList.add('hideGame');broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});updateUI(); renderAll(); startTurnTimer(); if(isBotPlayer(players[turn])) setTimeout(botPlay,700);}
@@ -635,9 +618,7 @@ function botPlay(){let who=players[turn]; if(!who) return; if(!isBotPlayer(who))
 function nextTurnHost(){
 if(!isHost) return;
 clearTurnTimer();
-// === FIX BUG 1 - 4th card bhi broadcast karo ===
 if(center.length<=4){
-  // Always broadcast current center to all friends - including 4th card!
   broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});
   renderAll(); updateUI();
 }
@@ -647,7 +628,6 @@ if(center.length<4){
   renderAll(); updateUI(); startTurnTimer();
   if(isBotPlayer(players[turn])) setTimeout(botPlay,700);
 }else{
-  // 4 cards complete - sab ko dikh gaya ab 1.1 sec baad win
   setTimeout(endTrickHost,1100);
 }
 }
