@@ -107,12 +107,6 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <div class="row" style="margin-top:6px"><button class="btn by" id="btnOnlineHost" onclick="createRoom(false)">ONLINE ROOM BANAO</button></div>
 <div class="row"><input id="joinId" placeholder="Online Room ID" style="flex:1;padding:6px;border-radius:6px;border:none;"><button class="btn bb" id="btnOnlineJoin" onclick="joinRoom(false)">ONLINE JOIN</button></div>
 </div>
-<div style="margin-top:10px;text-align:left;background:rgba(156,39,176,.2);padding:8px;border-radius:8px;border:1px solid #9c27b0">
-<b style="color:#e1bee7">📶 LAN WIFI (1 Hotspot - Mini Militia):</b>
-<div style="font-size:9px;color:#ffe082;margin:4px 0">Host: Data ON + Hotspot ON -> LAN HOST dabao<br>Join: Data OFF + Host Hotspot se connect -> LAN JOIN</div>
-<div class="row" style="margin-top:6px"><button class="btn bp" id="btnLANHost" onclick="createRoom(true)">📶 LAN HOST - Room Banao</button></div>
-<div class="row"><input id="joinIdLAN" placeholder="LAN Room ID" style="flex:1;padding:6px;border-radius:6px;border:none;"><button class="btn bg" id="btnLANJoin" onclick="joinRoom(true)">📶 LAN JOIN</button></div>
-</div>
 <div id="autoJoinMsg" style="font-size:11px;color:#00e676;margin-top:6px"></div>
 <div id="serverStatus" style="font-size:10px;color:#ffca28;margin-top:6px"></div>
 <div style="margin-top:8px"><button class="btn bg" onclick="directBotStart()">Direct Bots Se Khelo (2/3/4)</button></div>
@@ -175,7 +169,7 @@ window.addEventListener('load', function(){
   try{
     let params = new URLSearchParams(location.search);
     let r = params.get('room');
-    if(r){ r = r.toUpperCase().trim(); document.getElementById('joinId').value = r; document.getElementById('joinIdLAN').value = r; document.getElementById('autoJoinMsg').innerHTML = '🔗 Room: <b>'+r+'</b> - Naam likh ke JOIN!'; document.getElementById('myName').focus(); logConn('Link se Room mila: '+r); }
+    if(r){ r = r.toUpperCase().trim(); document.getElementById('joinId').value = r; document.getElementById('autoJoinMsg').innerHTML = '🔗 Room: <b>'+r+'</b> - Naam likh ke JOIN!'; document.getElementById('myName').focus(); logConn('Link se Room mila: '+r); }
   }catch(e){}
 });
 let myName="",roomId="",peer=null,conns={},isHost=true,players=[],dealer=0,bidder=1,gameNo=1,scores={},extra={},hands={},bids={},trump="",tricksWon={},center=[],turn=0,trick=1,deck=[],isBotGame=true,gameStarted=false,historyLog=[],initialBidder=0,initialBid=0;
@@ -211,8 +205,7 @@ document.getElementById('phase').innerText=(isLANMode?'LAN WIFI':'ONLINE')+' Lob
 isHost=true; isBotGame=false; gameStarted=false;updateShareUI(roomId);
 logConn((isLANMode?'LAN HOST':'ONLINE HOST')+' Room bana rahe: '+roomId);
 document.getElementById('btnOnlineHost').disabled=true;
-document.getElementById('btnLANHost').disabled=true;
-setTimeout(()=>{document.getElementById('btnOnlineHost').disabled=false;document.getElementById('btnLANHost').disabled=false;},3000);
+setTimeout(()=>{document.getElementById('btnOnlineHost').disabled=false;},3000);
 tryCreatePeerAsHost(roomId, PUBLIC_CFG, true);
 }
 function tryCreatePeerAsHost(id, cfg, tryFallback){
@@ -223,7 +216,7 @@ function tryCreatePeerAsHost(id, cfg, tryFallback){
     peer.on('open',function(openId){
       logConn('✅ HOST READY! Room: '+openId+' - Doston ko bolo JOIN kare!');
       document.getElementById('phase').innerText='✅ '+(isLANMode?'LAN WIFI':'ONLINE')+' Room READY: '+openId+' - Doston ko bolo JOIN!';
-      document.getElementById('lobbyConnLog').innerHTML='✅ Host Ready! ID: '+openId+'<br>LAN: Host Data ON + Hotspot ON<br>Join wale: Host Hotspot se connect';
+      document.getElementById('lobbyConnLog').innerHTML='✅ Host Ready! ID: '+openId;
     });
     peer.on('connection',function(c){
       logConn('Koi join kar raha hai: '+c.peer);
@@ -254,19 +247,18 @@ function tryCreatePeerAsHost(id, cfg, tryFallback){
 async function joinRoom(isLAN){
 myName=document.getElementById('myName').value.trim();if(!myName){ alert('Naam likho'); return; }
 isLANMode = isLAN;
-let jid = isLANMode ? document.getElementById('joinIdLAN').value.trim().toUpperCase() : document.getElementById('joinId').value.trim().toUpperCase();
+let jid = document.getElementById('joinId').value.trim().toUpperCase();
 if(!jid){ alert('Room ID likho'); return; }
 roomId=jid;
 document.getElementById('roomIdTxt').innerText=roomId;document.getElementById('lobbyRoomCode').innerText=roomId;document.getElementById('waitingRoomCode').innerText=roomId;
 document.getElementById('modal').classList.add('hidden');document.getElementById('waitingLobby').classList.remove('hidden');
-document.getElementById('phase').innerText=(isLANMode?'LAN WIFI':'ONLINE')+' Joining: '+roomId+' - Host se jud rahe...';
+document.getElementById('phase').innerText='ONLINE Joining: '+roomId+' - Host se jud rahe...';
 isHost=false; isBotGame=false; gameStarted=false;players=[];
 connAttempts=0;
-logConn((isLANMode?'LAN JOIN':'ONLINE JOIN')+' try: '+roomId);
-document.getElementById('waitingConnLog').innerHTML='Joining: '+roomId+'<br>'+(isLANMode?'LAN: Host Data ON + Hotspot ON? Host Hotspot se connect ho?':'ONLINE: Dono ka Data ON?');
+logConn('ONLINE JOIN try: '+roomId);
+document.getElementById('waitingConnLog').innerHTML='Joining: '+roomId;
 document.getElementById('btnOnlineJoin').disabled=true;
-document.getElementById('btnLANJoin').disabled=true;
-setTimeout(()=>{document.getElementById('btnOnlineJoin').disabled=false;document.getElementById('btnLANJoin').disabled=false;},3000);
+setTimeout(()=>{document.getElementById('btnOnlineJoin').disabled=false;},3000);
 tryJoinPeer(roomId, PUBLIC_CFG, true);
 }
 function tryJoinPeer(roomIdToJoin, cfg, tryFallback){
@@ -285,9 +277,9 @@ function tryJoinPeer(roomIdToJoin, cfg, tryFallback){
           logConn('Retry '+ (connAttempts+1) +' - MY SERVER se try...');
           tryJoinPeer(roomIdToJoin, MY_SERVER_CFG, false); 
         } else { 
-          showToast('Room nahi mila! Host ne banaya? ID sahi hai? '+ (isLANMode?'Ek hi hotspot pe ho? Host Data+Hotspot ON hai?':'Dono ka Data ON hai?'));
+          showToast('Room nahi mila! Host ne banaya? ID sahi hai?');
           logConn('❌ Final fail - Host ne Room banaya hai check karo, ID: '+roomIdToJoin);
-          document.getElementById('waitingConnLog').innerHTML='❌ Room nahi mila: '+roomIdToJoin+'<br>1. Host ne Room banaya?<br>2. ID sahi likha?<br>'+(isLANMode?'3. Ek hi Hotspot pe ho?<br>4. Host ka Data+Hotspot ON hai?':'3. Dono ka Data ON?<br>4. Jio/Airtel switch karke dekho');
+          document.getElementById('waitingConnLog').innerHTML='❌ Room nahi mila: '+roomIdToJoin;
         } 
       }, 8000);
       conn.on('open',function(){
@@ -298,7 +290,7 @@ function tryJoinPeer(roomIdToJoin, cfg, tryFallback){
         conn.send({type:'join',name:myName});
         logConn('Join request bheja naam: '+myName);
         setInterval(()=>{ try{conn.send({type:'ping'});}catch(e){} },5000);
-        document.getElementById('phase').innerText='✅ '+(isLANMode?'LAN WIFI':'ONLINE')+' Joined: '+roomIdToJoin+' - Host ke room me add!';
+        document.getElementById('phase').innerText='✅ ONLINE Joined: '+roomIdToJoin+' - Host ke room me add!';
         document.getElementById('waitingConnLog').innerHTML='✅ Joined: '+roomIdToJoin+'<br>Host START dabayega toh game shuru!';
       });
       conn.on('error',function(e){ 
