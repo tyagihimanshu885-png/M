@@ -609,7 +609,7 @@ let myIdx=getMyIdx();
 let seat=(pIdx - myIdx +4)%4;
 let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D'; 
 let throwCls = '';
-if(i==center.length-1){
+if(center.length < 4 && i==center.length-1){
   let s = (pIdx - myIdx +4)%4;
   if(s!=0) throwCls = getThrowClass(c.who);
 }
