@@ -40,7 +40,6 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .p-bottom .card .rank{font-size:11px;line-height:1}
 .p-bottom .card .suit{font-size:24px;line-height:1;margin:2px 0}
 .p-bottom .card:active{transform:translateY(-12px) scale(1.06);z-index:30}
-.flyingCard{position:fixed;z-index:500;pointer-events:none;margin:0!important;box-shadow:0 8px 20px rgba(0,0,0,.7)}
 .centerWrap{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:320px;height:320px;z-index:6;display:flex;align-items:center;justify-content:center}
 .trumpCenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:80px;opacity:0.18;color:#fff;font-weight:900;pointer-events:none;z-index:1}
 .trumpCenter.red{color:#ff8a8a;opacity:0.30}
@@ -591,7 +590,7 @@ for(let seat=0;seat<4;seat++){
     for(let idx=0;idx<h.length;idx++){
       let c=h[idx]; let isValid=true; 
       if(center.length>0){let lead=center[0].s; let has=false; for(let k=0;k<h.length;k++) if(h[k].s==lead) has=true; if(has) isValid=c.s==lead;}
-      html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+(isValid?'':' disabled')+'" onclick="playCardById(event,\''+c.id+'\')"><div class="rank">'+c.r+'</div><div class="suit">'+c.s+'</div><div class="rank" style="font-size:8px">'+c.r+'</div></div>';
+      html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+(isValid?'':' disabled')+'" onclick="playCardById(\''+c.id+'\')"><div class="rank">'+c.r+'</div><div class="suit">'+c.s+'</div><div class="rank" style="font-size:8px">'+c.r+'</div></div>';
     }
     cont.innerHTML=html;
   }else{ 
@@ -608,20 +607,14 @@ let pIdx=players.indexOf(c.who);
 let myIdx=getMyIdx();
 let seat=(pIdx - myIdx +4)%4;
 let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D'; 
-let throwCls = '';
-if(i==center.length-1){
-  let s = (pIdx - myIdx +4)%4;
-  if(s!=0) throwCls = getThrowClass(c.who);
-}
+let throwCls = (i==center.length-1) ? getThrowClass(c.who) : ''; 
 html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+' '+posClass+' '+throwCls+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:22px">'+c.s+'</div><div class="whoLabel">'+c.who+'</div></div>';
 } 
 cc.innerHTML=html;
 }
 }
 function showNotYourTurn(who){ if(players[turn]==myName) return; showToast('❌ NOT YOUR TURN - '+players[turn]+' ka turn hai!'); }
-function playCardById(ev, cardId){
-let e = ev;
-if(typeof ev === 'string'){ cardId = ev; e = window.event; }
+function playCardById(cardId){
 let hand=hands[myName]||[];
 if(players[turn]!=myName){ showNotYourTurn(players[turn]); return; }
 let cardToPlay=null; let realIdx=-1;
@@ -634,54 +627,12 @@ let lead=center[0].s; let has=false;
 for(let c of hand) if(c.s==lead) has=true;
 if(has && cardToPlay.s!=lead){showToast('Rule: '+lead+' hai to '+lead+' hi dalo!'); return;}
 }
-let cardEl = null;
-if(e && e.currentTarget) cardEl = e.currentTarget;
-else if(e && e.target) cardEl = e.target.closest('.card');
-if(!cardEl){
-  cardEl = document.querySelector('.p-bottom .card');
-}
-if(cardEl){
-  let rect = cardEl.getBoundingClientRect();
-  let fly = document.createElement('div');
-  fly.className = 'card '+(cardToPlay.s=='♥'||cardToPlay.s=='♦'?'red':'black')+' flyingCard';
-  fly.innerHTML = '<div class="rank">'+cardToPlay.r+'</div><div class="suit" style="font-size:24px">'+cardToPlay.s+'</div><div class="rank" style="font-size:8px">'+cardToPlay.r+'</div>';
-  fly.style.left = rect.left+'px';
-  fly.style.top = rect.top+'px';
-  fly.style.width = rect.width+'px';
-  fly.style.height = rect.height+'px';
-  document.body.appendChild(fly);
-  let wrap = document.querySelector('.centerWrap');
-  let targetX = window.innerWidth/2 - rect.width/2;
-  let targetY = window.innerHeight*0.46;
-  if(wrap){
-    let wRect = wrap.getBoundingClientRect();
-    targetX = wRect.left + wRect.width/2 - rect.width/2;
-    targetY = wRect.top + wRect.height*0.55;
-  }
-  let dx = targetX - rect.left;
-  let dy = targetY - rect.top;
-  clearTurnTimer();
-  hand.splice(realIdx,1);
-  renderAll(); updateUI();
-  let anim = fly.animate([
-    {transform:'translate(0,0) scale(1)', opacity:1},
-    {transform:`translate(${dx}px, ${dy}px) scale(1)`, opacity:1}
-  ],{duration:500, easing:'cubic-bezier(0.175,0.885,0.32,1.275)', fill:'forwards'});
-  anim.onfinish = ()=>{
-    fly.remove();
-    let newCard={s:cardToPlay.s,r:cardToPlay.r,p:cardToPlay.p,id:cardToPlay.id,who:myName};
-    center.push(newCard);
-    renderAll(); updateUI();
-    if(isHost){ nextTurnHost(); }else{ broadcast({type:'playCard',card:cardToPlay,who:myName}); }
-  };
-}else{
-  clearTurnTimer();
-  hand.splice(realIdx,1);
-  let newCard={s:cardToPlay.s,r:cardToPlay.r,p:cardToPlay.p,id:cardToPlay.id,who:myName};
-  center.push(newCard);
-  renderAll(); updateUI();
-  if(isHost){ nextTurnHost(); }else{ broadcast({type:'playCard',card:cardToPlay,who:myName}); }
-}
+clearTurnTimer();
+hand.splice(realIdx,1);
+let newCard={s:cardToPlay.s,r:cardToPlay.r,p:cardToPlay.p,id:cardToPlay.id,who:myName};
+center.push(newCard);
+renderAll(); updateUI();
+if(isHost){ nextTurnHost(); }else{ broadcast({type:'playCard',card:cardToPlay,who:myName}); }
 }
 function botPlay(){let who=players[turn]; if(!who) return; if(!isBotPlayer(who)) return; let h=hands[who]; if(!h) return; let validIdx=getValidCards(h); if(validIdx.length===0) return;let chosenIdx=validIdx[rnd(validIdx.length)]; let card=h[chosenIdx]; if(!card) return;let idx=-1; for(let i=0;i<h.length;i++){ if(h[i].id===card.id){ idx=i; break; } }if(idx>=0) h.splice(idx,1); else return;clearTurnTimer();center.push({s:card.s,r:card.r,p:card.p,id:card.id,who:who}); nextTurnHost();}
 function nextTurnHost(){
