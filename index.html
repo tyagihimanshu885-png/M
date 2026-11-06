@@ -618,7 +618,9 @@ let seat=(pIdx - myIdx +4)%4;
 let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D';
 let throwCls='';
 if(i==center.length-1 && !window._doneThrow.has(c.id)){
-  if(seat!=0){
+  if(seat==0){
+    throwCls=''; // niche wala flying se aayega, double nahi
+  }else{
     throwCls=getThrowClass(c.who);
   }
   window._doneThrow.add(c.id);
