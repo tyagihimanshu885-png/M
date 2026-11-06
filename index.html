@@ -608,26 +608,24 @@ if(center.length==0){
   if(window._doneThrow) window._doneThrow.clear();
   return;
 }
-if(cc.children.length < center.length){
-  for(let i=cc.children.length; i<center.length; i++){
-    let c=center[i];
-    let pIdx=players.indexOf(c.who);
-    let myIdx=getMyIdx();
-    let seat=(pIdx - myIdx +4)%4;
-    let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D';
-    let div=document.createElement('div');
-    div.className='card '+(c.s=='♥'||c.s=='♦'?'red':'black')+' '+posClass;
-    if(!window._doneThrow) window._doneThrow=new Set();
-    if(!window._doneThrow.has(c.id)){
-      if(seat!=0){
-        div.classList.add(getThrowClass(c.who));
-      }
-      window._doneThrow.add(c.id);
-    }
-    div.innerHTML='<div class="rank">'+c.r+'</div><div class="suit" style="font-size:22px">'+c.s+'</div><div class="whoLabel">'+c.who+'</div>';
-    cc.appendChild(div);
+if(!window._doneThrow) window._doneThrow=new Set();
+let html='';
+for(let i=0;i<center.length;i++){
+let c=center[i];
+let pIdx=players.indexOf(c.who);
+let myIdx=getMyIdx();
+let seat=(pIdx - myIdx +4)%4;
+let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D';
+let throwCls='';
+if(i==center.length-1 && !window._doneThrow.has(c.id)){
+  if(seat!=0){
+    throwCls=getThrowClass(c.who);
   }
+  window._doneThrow.add(c.id);
 }
+html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+' '+posClass+' '+throwCls+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:22px">'+c.s+'</div><div class="whoLabel">'+c.who+'</div></div>';
+}
+cc.innerHTML=html;
 }
 function showNotYourTurn(who){ if(players[turn]==myName) return; showToast('❌ NOT YOUR TURN - '+players[turn]+' ka turn hai!'); }
 function playCardById(ev, cardId){
