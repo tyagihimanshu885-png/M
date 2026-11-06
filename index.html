@@ -365,6 +365,7 @@ if(data.type=='deal'){
   hands=data.hands;dealer=data.dealer;bidder=data.bidder;gameNo=data.gameNo;trump=data.trump||"";bids=data.bids||{};scores=data.scores;extra=data.extra;deck=data.deck||[];
   initialBidder=data.initialBidder!=null?data.initialBidder:bidder;initialBid=data.initialBid||0;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;
   if(trump) trumpLocked = true;
+  if(window._doneThrow) window._doneThrow.clear();
   clearTurnTimer();clearBidTimer();updateUI();renderAll(); 
   if(!isHost && !trumpLocked && data.deck && data.deck.length>0 && players[bidder]==myName){ 
     setTimeout(()=>showBidModal(players[bidder],5,true),400); 
@@ -375,7 +376,7 @@ if(data.type=='overcall'){trump=data.trump;bids=data.bids;bidder=data.bidder;ove
 if(data.type=='bid'){bids=data.bids;clearTurnTimer();clearBidTimer();updateUI();if(isHost)checkBidsAndContinue();}
 if(data.type=='bidRequest'){trump=data.trump;bids=data.bids;if(data.who==myName){showBidModal(myName,13,false);}updateUI();}
 if(data.type=='play'){center=data.center;turn=data.turn;tricksWon=data.tricksWon;clearTurnTimer();clearBidTimer();renderAll();updateUI(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
-if(data.type=='trickEnd'){tricksWon=data.tricksWon;center=[];turn=data.turn;trick=data.trick;clearTurnTimer();clearBidTimer();updateUI();renderAll(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
+if(data.type=='trickEnd'){tricksWon=data.tricksWon;center=[];turn=data.turn;trick=data.trick;if(window._doneThrow) window._doneThrow.clear();clearTurnTimer();clearBidTimer();updateUI();renderAll(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
 if(data.type=='gameOver'){scores=data.scores;extra=data.extra;historyLog=data.historyLog||historyLog;clearTurnTimer();clearBidTimer();trumpLocked=false;updateUI();gameNo=data.nextGame;if(gameNo>15){showFinal();}else{showHistoryAuto();}}
 if(data.type=='nextRound'){gameNo=data.gameNo;closeHistory();if(isHost)hostStartGame();}
 if(data.type=='reaction'){showEmojiLocal(data.from, data.emoji);}
@@ -398,7 +399,7 @@ dealer=(gameNo-1)%players.length;
 bidder=(dealer+1)%players.length;
 initialBidder=bidder;
 bids={}; trump=""; trumpLocked=false; tricksWon={};for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;
-center=[]; trick=1; turn=bidder; overcallOrder=[]; overcallIdx=0; clearTurnTimer(); clearBidTimer();
+center=[]; trick=1; turn=bidder; overcallOrder=[]; overcallIdx=0; if(window._doneThrow) window._doneThrow.clear(); clearTurnTimer(); clearBidTimer();
 let fullDeck=mkDeck(); hands={};for(let i=0;i<players.length;i++){ hands[players[i]]=fullDeck.splice(0,5); }deck=fullDeck;
 document.getElementById('uiBox').classList.add('hideGame');
 document.getElementById('onlineLobby').classList.add('hidden');
@@ -522,7 +523,7 @@ function checkBidsAndContinue(startIdx){
   }
   if(isHost) startTricksHost();
 }
-function startTricksHost(){turn=bidder; trick=1; center=[]; tricksWon={}; for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;document.getElementById('uiBox').classList.add('hideGame');broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});updateUI(); renderAll(); startTurnTimer(); if(isBotPlayer(players[turn])) setTimeout(botPlay,700);}
+function startTricksHost(){turn=bidder; trick=1; center=[]; tricksWon={}; for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;if(window._doneThrow) window._doneThrow.clear();document.getElementById('uiBox').classList.add('hideGame');broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});updateUI(); renderAll(); startTurnTimer(); if(isBotPlayer(players[turn])) setTimeout(botPlay,700);}
 function getMyIdx(){ let idx=players.indexOf(myName); return idx>=0?idx:0; }
 function getPlayerAtSeat(seat){ let myIdx=getMyIdx(); let pIdx=(myIdx + seat)%players.length; return players[pIdx]; }
 function showBidModal(who,cnt,isFirst){
@@ -609,9 +610,12 @@ let myIdx=getMyIdx();
 let seat=(pIdx - myIdx +4)%4;
 let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D'; 
 let throwCls = '';
-if(center.length < 4 && i==center.length-1){
-  let s = (pIdx - myIdx +4)%4;
-  if(s!=0) throwCls = getThrowClass(c.who);
+if(!window._doneThrow) window._doneThrow = new Set();
+if(!window._doneThrow.has(c.id)){
+  if(seat!=0){
+    throwCls = getThrowClass(c.who);
+  }
+  window._doneThrow.add(c.id);
 }
 html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+' '+posClass+' '+throwCls+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:22px">'+c.s+'</div><div class="whoLabel">'+c.who+'</div></div>';
 } 
