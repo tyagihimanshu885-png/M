@@ -67,7 +67,7 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .win-to-B{animation:winToLeft .5s ease-in forwards}
 .win-to-C{animation:winToTop .5s ease-in forwards}
 .win-to-D{animation:winToRight .5s ease-in forwards}
-.turnBar{position:absolute;left:2%;right:2%;top:68%;background:#ff9800;color:#000;padding:4px 7px;border-radius:4px;font-weight:700;font-size:10px;z-index:15;text-align:left}
+.turnBar{position:absolute;left:2%;right:2%;top:58%;background:#ff9800;color:#000;padding:4px 7px;border-radius:4px;font-weight:700;font-size:10px;z-index:15;text-align:left}
 .ui{position:fixed;left:3px;top:3px;background:rgba(0,0,0,.85);color:#fff;padding:4px 6px;border-radius:7px;font-size:8px;min-width:160px;z-index:100;transition:all .4s}
 .ui.hideGame{opacity:0;pointer-events:none;transform:translateY(-30px)}
 .btn{padding:6px 10px;border-radius:6px;border:none;font-weight:700;cursor:pointer;margin:2px;font-size:11px}.by{background:#ffca28;color:#000}.bg{background:#2e7d32;color:#fff}.bb{background:#1565c0;color:#fff}.br{background:#c62828;color:#fff}.bp{background:#9c27b0;color:#fff}
@@ -78,8 +78,8 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .playerSlot.joined{background:#0e3a2e;border-style:solid;border-color:#2e7d32}
 .emojiReact{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:28px;animation:emojiPop 2.2s ease-out forwards;z-index:60;pointer-events:none;text-shadow:0 2px 12px #000}
 @keyframes emojiPop{0%{transform:translateX(-50%) translateY(20px) scale(0.3);opacity:0}20%{transform:translateX(-50%) translateY(0) scale(1.2);opacity:1}80%{transform:translateX(-50%) translateY(-50px) scale(1);opacity:1}100%{transform:translateX(-50%) translateY(-90px) scale(0.3);opacity:0}}
-#emojiToggleBtn{position:fixed;bottom:145px;left:6px;width:34px;height:34px;background:#ffca28;border:2px solid #000;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:211;box-shadow:0 3px 10px rgba(0,0,0,.5)}
-#emojiBar{position:fixed;bottom:185px;left:6px;background:rgba(0,0,0,.92);border:2px solid #ffca28;border-radius:12px;padding:5px;display:none;grid-template-columns:repeat(3,1fr);gap:4px;z-index:212;box-shadow:0 4px 15px rgba(0,0,0,.7)}
+#emojiToggleBtn{position:fixed;bottom:175px;left:6px;width:34px;height:34px;background:#ffca28;border:2px solid #000;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:211;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+#emojiBar{position:fixed;bottom:215px;left:6px;background:rgba(0,0,0,.92);border:2px solid #ffca28;border-radius:12px;padding:5px;display:none;grid-template-columns:repeat(3,1fr);gap:4px;z-index:212;box-shadow:0 4px 15px rgba(0,0,0,.7)}
 #emojiBar.open{display:grid}
 #emojiBar button{background:rgba(255,255,255,.1);border:none;font-size:22px;cursor:pointer;padding:4px 6px;border-radius:7px}
 #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#c62828;color:#fff;padding:10px 16px;border-radius:9px;font-weight:800;font-size:13px;z-index:500;display:none;box-shadow:0 4px 20px rgba(0,0,0,.7);border:2px solid #fff;animation:toastPop .3s ease}
