@@ -614,9 +614,9 @@ let myIdx=getMyIdx();
 let seat=(pIdx - myIdx +4)%4;
 let posClass=seat==0?'pos-A':seat==1?'pos-B':seat==2?'pos-C':'pos-D'; 
 let throwCls='';
-if(i==center.length-1 && !_doneThrow.has(c.id)){
-throwCls=getThrowClass(c.who);
-_doneThrow.add(c.id);
+if(!_doneThrow.has(c.id)){
+  throwCls=getThrowClass(c.who);
+  _doneThrow.add(c.id);
 }
 html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+' '+posClass+' '+throwCls+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:22px">'+c.s+'</div><div class="whoLabel">'+c.who+'</div></div>';
 } 
