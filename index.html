@@ -51,7 +51,6 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .centerCards .card.pos-B{left:70px;top:50%;z-index:3;transform:translate(0,-50%)}
 .centerCards .card.pos-C{top:5px;left:50%;z-index:2;transform:translate(-50%,0)}
 .centerCards .card.pos-D{right:70px;top:50%;z-index:3;transform:translate(0,-50%)}
-/* LAST WALE JAISA POP ANIMATION - SABKE LIYE SAME, 0.5s, APNI JAGAH PE HI */
 @keyframes throwFromBottom{0%{transform:translate(-50%,0) scale(0.2);opacity:0}60%{transform:translate(-50%,0) scale(1.15);opacity:1}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 @keyframes throwFromTop{0%{transform:translate(-50%,0) scale(0.2);opacity:0}60%{transform:translate(-50%,0) scale(1.15);opacity:1}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 @keyframes throwFromLeft{0%{transform:translate(0,-50%) scale(0.2);opacity:0}60%{transform:translate(0,-50%) scale(1.15);opacity:1}100%{transform:translate(0,-50%) scale(1);opacity:1}}
@@ -206,6 +205,7 @@ let overcallOrder=[],overcallIdx=0;
 let turnTimer=null,turnTimeLeft=30,originalNames={},bidTimer=null;
 let trumpLocked=false;
 let _doneThrow = new Set();
+let _lastCenterKey = "";
 const suits=["♠","♥","♦","♣"],ranks=["A","K","Q","J","10","9","8","7","6","5","4","3","2"],pow={A:14,K:13,Q:12,J:11,"10":10,"9":9,"8":8,"7":7,"6":6,"5":5,"4":4,"3":3,"2":2};
 function rnd(n){return Math.floor(Math.random()*n)}
 function isBotPlayer(name){ if(!name) return true; return name=='B' || name=='C' || name=='D' || name.startsWith('Bot'); }
@@ -366,7 +366,7 @@ if(data.type=='deal'){
   hands=data.hands;dealer=data.dealer;bidder=data.bidder;gameNo=data.gameNo;trump=data.trump||"";bids=data.bids||{};scores=data.scores;extra=data.extra;deck=data.deck||[];
   initialBidder=data.initialBidder!=null?data.initialBidder:bidder;initialBid=data.initialBid||0;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;
   if(trump) trumpLocked = true;
-  _doneThrow.clear();
+  _doneThrow.clear(); _lastCenterKey="";
   clearTurnTimer();clearBidTimer();updateUI();renderAll(); 
   if(!isHost && !trumpLocked && data.deck && data.deck.length>0 && players[bidder]==myName){ 
     setTimeout(()=>showBidModal(players[bidder],5,true),400); 
@@ -377,7 +377,7 @@ if(data.type=='overcall'){trump=data.trump;bids=data.bids;bidder=data.bidder;ove
 if(data.type=='bid'){bids=data.bids;clearTurnTimer();clearBidTimer();updateUI();if(isHost)checkBidsAndContinue();}
 if(data.type=='bidRequest'){trump=data.trump;bids=data.bids;if(data.who==myName){showBidModal(myName,13,false);}updateUI();}
 if(data.type=='play'){center=data.center;turn=data.turn;tricksWon=data.tricksWon;clearTurnTimer();clearBidTimer();renderAll();updateUI(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
-if(data.type=='trickEnd'){tricksWon=data.tricksWon;center=[];turn=data.turn;trick=data.trick;_doneThrow.clear();clearTurnTimer();clearBidTimer();updateUI();renderAll(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
+if(data.type=='trickEnd'){tricksWon=data.tricksWon;center=[];turn=data.turn;trick=data.trick;_doneThrow.clear(); _lastCenterKey="";clearTurnTimer();clearBidTimer();updateUI();renderAll(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
 if(data.type=='gameOver'){scores=data.scores;extra=data.extra;historyLog=data.historyLog||historyLog;clearTurnTimer();clearBidTimer();trumpLocked=false;updateUI();gameNo=data.nextGame;if(gameNo>15){showFinal();}else{showHistoryAuto();}}
 if(data.type=='nextRound'){gameNo=data.gameNo;closeHistory();if(isHost)hostStartGame();}
 if(data.type=='reaction'){showEmojiLocal(data.from, data.emoji);}
@@ -400,7 +400,7 @@ dealer=(gameNo-1)%players.length;
 bidder=(dealer+1)%players.length;
 initialBidder=bidder;
 bids={}; trump=""; trumpLocked=false; tricksWon={};for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;
-center=[]; trick=1; turn=bidder; overcallOrder=[]; overcallIdx=0; _doneThrow.clear(); clearTurnTimer(); clearBidTimer();
+center=[]; trick=1; turn=bidder; overcallOrder=[]; overcallIdx=0; _doneThrow.clear(); _lastCenterKey=""; clearTurnTimer(); clearBidTimer();
 let fullDeck=mkDeck(); hands={};for(let i=0;i<players.length;i++){ hands[players[i]]=fullDeck.splice(0,5); }deck=fullDeck;
 document.getElementById('uiBox').classList.add('hideGame');
 document.getElementById('onlineLobby').classList.add('hidden');
@@ -524,7 +524,7 @@ function checkBidsAndContinue(startIdx){
   }
   if(isHost) startTricksHost();
 }
-function startTricksHost(){turn=bidder; trick=1; center=[]; tricksWon={}; for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;_doneThrow.clear();document.getElementById('uiBox').classList.add('hideGame');broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});updateUI(); renderAll(); startTurnTimer(); if(isBotPlayer(players[turn])) setTimeout(botPlay,700);}
+function startTricksHost(){turn=bidder; trick=1; center=[]; tricksWon={}; for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;_doneThrow.clear(); _lastCenterKey="";document.getElementById('uiBox').classList.add('hideGame');broadcast({type:'play',center:center,turn:turn,tricksWon:tricksWon});updateUI(); renderAll(); startTurnTimer(); if(isBotPlayer(players[turn])) setTimeout(botPlay,700);}
 function getMyIdx(){ let idx=players.indexOf(myName); return idx>=0?idx:0; }
 function getPlayerAtSeat(seat){ let myIdx=getMyIdx(); let pIdx=(myIdx + seat)%players.length; return players[pIdx]; }
 function showBidModal(who,cnt,isFirst){
@@ -606,7 +606,11 @@ if(cc){
 if(center.length==0){
 cc.innerHTML='';
 _doneThrow.clear();
+_lastCenterKey="";
 }else{
+let _key = center.map(c=>c.id+c.who).join(',');
+if(_key !== _lastCenterKey){
+_lastCenterKey = _key;
 let html=''; 
 for(let i=0;i<center.length;i++){
 let c=center[i]; 
@@ -622,6 +626,7 @@ if(!_doneThrow.has(c.id)){
 html+='<div class="card '+(c.s=='♥'||c.s=='♦'?'red':'black')+' '+posClass+' '+throwCls+'"><div class="rank">'+c.r+'</div><div class="suit" style="font-size:22px">'+c.s+'</div><div class="whoLabel">'+c.who+'</div></div>';
 } 
 cc.innerHTML=html;
+}
 }
 }
 }
