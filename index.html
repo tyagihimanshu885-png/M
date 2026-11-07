@@ -102,7 +102,6 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 .goluText{margin-top:30px;color:#ffca28;font-weight:900;font-size:22px;letter-spacing:2px;opacity:0;animation:goluTextPop 0.5s 1.5s forwards}
 @keyframes goluTextPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
 #goluLoader.hide{display:none!important}
-#historyTimer{margin:6px 0 2px;background:#ffca28;color:#000;padding:5px 8px;border-radius:8px;font-weight:900;font-size:13px}
 </style>
 </head>
 <body>
@@ -144,7 +143,7 @@ body{background:#0e5a2f;min-height:100vh;overflow:hidden;user-select:none}
 <div id="waitingLobby" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">⏳ Joined!</h3><div id="waitingRoomCode" class="lobbyCode">TRUMP1234</div><div id="waitingPlayers" style="margin:10px 0;text-align:left"></div><div id="waitingConnLog" style="font-size:10px;color:#0f0;margin:6px 0"></div><div style="font-size:12px;color:#0f0">Host START ka wait karo - Tum niche - Patte hidden!</div><div class="row" style="margin-top:10px"><button class="btn br" onclick="leaveLobby()">Leave</button></div></div></div>
 <div id="bidModal" class="modal hidden"><div class="modalBox"><h3 id="bidTitle">Bid</h3><div id="bidRoundInfo" style="margin:4px 0;font-size:11px;color:#ffe082"></div><div id="bidTrumpInfo" style="margin:6px 0;font-size:13px;font-weight:800;color:#ffca28"></div><div id="bidCards" class="row" style="margin:8px 0"></div><div id="bidBtns"></div><div id="trumpBtns" style="margin-top:8px"></div></div></div>
 <div id="overcallModal" class="modal hidden"><div class="modalBox"><h3 id="overcallTitle">Kaatna?</h3><div id="overcallInfo" style="margin:6px 0;font-size:12px;color:#ffe082"></div><div id="overcallCards" class="row" style="margin:8px 0"></div><div id="overcallBtns"></div><div id="overcallTrumpBtns" style="margin-top:8px"></div></div></div>
-<div id="historyModal" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">📊 Hisab</h3><div id="historyTimer" style="display:none">⏳ Next Round in 10s...</div><div id="historyContent" style="max-height:60vh;overflow:auto"></div><div style="margin-top:10px"><button class="btn bg" id="nextRoundBtn" onclick="nextRoundStart()">NEXT ROUND ▶</button> <button class="btn by" onclick="closeHistory()">Band</button></div></div></div>
+<div id="historyModal" class="modal hidden"><div class="modalBox"><h3 style="color:#ffca28">📊 Hisab</h3><div id="historyContent" style="max-height:60vh;overflow:auto"></div><div style="margin-top:10px"><button class="btn bg" onclick="nextRoundStart()">NEXT ROUND ▶</button> <button class="btn by" onclick="closeHistory()">Band</button></div></div></div>
 <script>
 const ICE_SERVERS_FIX = [
   {urls:"stun:stun.l.google.com:19302"},
@@ -205,7 +204,6 @@ let myName="",roomId="",peer=null,conns={},isHost=true,players=[],dealer=0,bidde
 let overcallOrder=[],overcallIdx=0;
 let turnTimer=null,turnTimeLeft=30,originalNames={},bidTimer=null;
 let trumpLocked=false;
-let historyTimer=null, historyTimeLeft=10;
 const suits=["♠","♥","♦","♣"],ranks=["A","K","Q","J","10","9","8","7","6","5","4","3","2"],pow={A:14,K:13,Q:12,J:11,"10":10,"9":9,"8":8,"7":7,"6":6,"5":5,"4":4,"3":3,"2":2};
 function rnd(n){return Math.floor(Math.random()*n)}
 function isBotPlayer(name){ if(!name) return true; return name=='B' || name=='C' || name=='D' || name.startsWith('Bot'); }
@@ -340,7 +338,7 @@ function tryJoinPeer(roomIdToJoin, cfg, tryFallback){
 function handlePeerClose(peerId){logConn('Player offline: '+peerId); showToast('⚠️ Player offline: '+peerId);}
 function addBotToLobby(){if(players.length>=4){alert('Room full');return;}let botNames=['B','C','D'];for(let n of botNames){if(players.length>=4)break;if(players.indexOf(n)==-1) players.push(n);}if(players.length<4){players.push('Bot'+players.length);}renderLobby();broadcast({type:'lobby',players:players,roomId:roomId}); logConn('Bot add kiya - Players: '+players.join(','));}
 function hostStartFromLobby(){if(players.length<1){alert('Kam se kam 1 player');return;}ensureFourPlayers();document.getElementById('onlineLobby').classList.add('hidden');document.getElementById('waitingLobby').classList.add('hidden');isBotGame=players.some(p=>isBotPlayer(p));gameStarted=true;broadcast({type:'startGame',players:players,roomId:roomId});logConn('Game START - Players: '+players.join(','));hostStartGame();}
-function leaveLobby(){document.getElementById('onlineLobby').classList.add('hidden');document.getElementById('waitingLobby').classList.add('hidden');document.getElementById('modal').classList.remove('hidden');players=[];roomId="";gameStarted=false;try{if(peer)peer.destroy();}catch(e){}conns={};peer=null;document.getElementById('roomIdTxt').innerText='-'; clearTurnTimer(); clearBidTimer(); clearHistoryTimer(); logConn('Lobby choda - Wapas');}
+function leaveLobby(){document.getElementById('onlineLobby').classList.add('hidden');document.getElementById('waitingLobby').classList.add('hidden');document.getElementById('modal').classList.remove('hidden');players=[];roomId="";gameStarted=false;try{if(peer)peer.destroy();}catch(e){}conns={};peer=null;document.getElementById('roomIdTxt').innerText='-'; clearTurnTimer(); clearBidTimer(); logConn('Lobby choda - Wapas');}
 function handleData(data,connFrom){
 if(data.type=='ping'){return;}
 if(data.type=='join'&&isHost){
@@ -361,19 +359,26 @@ if(data.type=='join'&&isHost){
     logConn(data.name+' pehle se hai - lobby update bheja');
   }
 }if(data.type=='lobby'){players=data.players;roomId=data.roomId||roomId;renderLobby();document.getElementById('roomIdTxt').innerText=roomId;updateUI(); logConn('Lobby update: '+players.join(','));}
-if(data.type=='startGame'){players=data.players;roomId=data.roomId||roomId;document.getElementById('waitingLobby').classList.add('hidden');document.getElementById('onlineLobby').classList.add('hidden');isBotGame=players.some(p=>isBotPlayer(p));gameStarted=true;document.getElementById('roomIdTxt').innerText=roomId;logConn('Game Start signal: '+players.join(','));hostStartGame();}
+if(data.type=='startGame'){players=data.players;roomId=data.roomId||roomId;document.getElementById('waitingLobby').classList.add('hidden');document.getElementById('onlineLobby').classList.add('hidden');isBotGame=players.some(p=>isBotPlayer(p));gameStarted=true;document.getElementById('roomIdTxt').innerText=roomId;logConn('Game Start signal: '+players.join(','));}
 if(data.type=='deal'){
+  closeHistory();
   hands=data.hands;dealer=data.dealer;bidder=data.bidder;gameNo=data.gameNo;trump=data.trump||"";bids=data.bids||{};scores=data.scores;extra=data.extra;deck=data.deck||[];
   initialBidder=data.initialBidder!=null?data.initialBidder:bidder;initialBid=data.initialBid||0;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;
-  if(trump) trumpLocked = true;
-  clearTurnTimer();clearBidTimer();clearHistoryTimer();document.getElementById('historyModal').classList.add('hidden');updateUI();renderAll(); 
+  trumpLocked = !!trump;
+  clearTurnTimer();clearBidTimer();updateUI();renderAll(); 
   if(!isHost && !trumpLocked && data.deck && data.deck.length>0 && players[bidder]==myName){ 
     setTimeout(()=>showBidModal(players[bidder],5,true),400); 
   }
 }
-if(data.type=='firstBid'){trump=data.trump;bids=data.bids;bidder=data.bidder;initialBidder=data.initialBidder;initialBid=data.initialBid;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;trumpLocked=false;clearTurnTimer();clearBidTimer();updateUI(); if(!isHost){ let nxt=overcallOrder[overcallIdx]; if(nxt!=null && players[nxt]==myName) setTimeout(()=>showOvercallModal(myName),500); } if(isHost) setTimeout(startOvercallPhase,500);}
-if(data.type=='overcall'){trump=data.trump;bids=data.bids;bidder=data.bidder;overcallOrder=data.overcallOrder||overcallOrder;overcallIdx=data.overcallIdx;clearTurnTimer();clearBidTimer();updateUI(); if(!isHost){ let nxt=overcallOrder[overcallIdx]; if(nxt!=null && players[nxt]==myName) setTimeout(()=>showOvercallModal(myName),500); } if(isHost) setTimeout(continueOvercall,400);}
-if(data.type=='bid'){bids=data.bids;clearTurnTimer();clearBidTimer();updateUI();if(isHost)checkBidsAndContinue();}
+if(data.type=='firstBid'){
+  if(isHost && connFrom) broadcastExcept(data, connFrom);
+  trump=data.trump;bids=data.bids;bidder=data.bidder;initialBidder=data.initialBidder;initialBid=data.initialBid;overcallOrder=data.overcallOrder||[];overcallIdx=data.overcallIdx||0;trumpLocked=false;clearTurnTimer();clearBidTimer();updateUI(); if(!isHost){ let nxt=overcallOrder[overcallIdx]; if(nxt!=null && players[nxt]==myName) setTimeout(()=>showOvercallModal(myName),500); } if(isHost) setTimeout(startOvercallPhase,500);}
+if(data.type=='overcall'){
+  if(isHost && connFrom) broadcastExcept(data, connFrom);
+  trump=data.trump;bids=data.bids;bidder=data.bidder;overcallOrder=data.overcallOrder||overcallOrder;overcallIdx=data.overcallIdx;clearTurnTimer();clearBidTimer();updateUI(); if(!isHost){ let nxt=overcallOrder[overcallIdx]; if(nxt!=null && players[nxt]==myName) setTimeout(()=>showOvercallModal(myName),500); } if(isHost) setTimeout(continueOvercall,400);}
+if(data.type=='bid'){
+  if(isHost && connFrom) broadcastExcept(data, connFrom);
+  bids=data.bids;clearTurnTimer();clearBidTimer();updateUI();if(isHost)checkBidsAndContinue();}
 if(data.type=='bidRequest'){trump=data.trump;bids=data.bids;if(data.who==myName){showBidModal(myName,13,false);}updateUI();}
 if(data.type=='play'){center=data.center;turn=data.turn;tricksWon=data.tricksWon;clearTurnTimer();clearBidTimer();renderAll();updateUI(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
 if(data.type=='trickEnd'){tricksWon=data.tricksWon;center=[];turn=data.turn;trick=data.trick;clearTurnTimer();clearBidTimer();updateUI();renderAll(); startTurnTimer(); if(isHost && isBotPlayer(players[turn])) setTimeout(botPlay,700);}
@@ -390,7 +395,8 @@ if(data.type=='playCard' && isHost){
   nextTurnHost();
 }
 }
-function broadcast(obj){let keys=Object.keys(conns);for(let i=0;i<keys.length;i++){try{conns[keys[i]].send(obj)}catch(e){logConn('Broadcast fail to '+keys[i]+': '+e.message);}}}
+function broadcast(obj){let seen=new Set(); let keys=Object.keys(conns);for(let i=0;i<keys.length;i++){try{let c=conns[keys[i]]; if(seen.has(c)) continue; seen.add(c); c.send(obj);}catch(e){logConn('Broadcast fail to '+keys[i]+': '+e.message);}}}
+function broadcastExcept(obj, exceptConn){let seen=new Set(); let keys=Object.keys(conns);for(let i=0;i<keys.length;i++){try{let c=conns[keys[i]]; if(c===exceptConn) continue; if(seen.has(c)) continue; seen.add(c); c.send(obj);}catch(e){logConn('BroadcastExcept fail to '+keys[i]+': '+e.message);}}}
 function hostStartGame(){
 gameStarted=true;
 ensureFourPlayers();
@@ -399,7 +405,7 @@ dealer=(gameNo-1)%players.length;
 bidder=(dealer+1)%players.length;
 initialBidder=bidder;
 bids={}; trump=""; trumpLocked=false; tricksWon={};for(let i=0;i<players.length;i++) tricksWon[players[i]]=0;
-center=[]; trick=1; turn=bidder; overcallOrder=[]; overcallIdx=0; clearTurnTimer(); clearBidTimer(); clearHistoryTimer();
+center=[]; trick=1; turn=bidder; overcallOrder=[]; overcallIdx=0; clearTurnTimer(); clearBidTimer();
 let fullDeck=mkDeck(); hands={};for(let i=0;i<players.length;i++){ hands[players[i]]=fullDeck.splice(0,5); }deck=fullDeck;
 document.getElementById('uiBox').classList.add('hideGame');
 document.getElementById('onlineLobby').classList.add('hidden');
@@ -541,7 +547,7 @@ document.getElementById('bidBtns').innerHTML='Bid: <select id="bidSel">'+opts+'<
 document.getElementById('trumpBtns').innerHTML=isFirst?'Trump: <button class="btn bg" onclick="setTmp(\'♠\')">♠</button><button class="btn bg" onclick="setTmp(\'♥\')">♥</button><button class="btn bg" onclick="setTmp(\'♦\')">♦</button><button class="btn bg" onclick="setTmp(\'♣\')">♣</button> <b id="tmpShow">?</b>':'';
 startTurnTimer();
 }
-let tmpT="";function setTmp(s){tmpT=s;document.getElementById('tmpShow').innerText=s}
+let tmpT="";function setTmp(s){tmpT=s; document.getElementById('tmpShow').innerText=s}
 function confirmBid(isFirst){
 clearBidTimer(); clearTurnTimer();
 let b=parseInt(document.getElementById('bidSel').value);
@@ -655,14 +661,12 @@ if(center.length<4){
 }
 function endTrickHost(){let lead=center[0].s; let win=center[0];for(let i=1;i<center.length;i++){let c=center[i]; if(c.s==trump&&win.s!=trump) win=c; else if(c.s==trump&&win.s==trump&&c.p>win.p) win=c; else if(c.s==lead&&win.s==lead&&win.s!=trump&&c.p>win.p) win=c;}tricksWon[win.who]=(tricksWon[win.who]||0)+1;let winCls=getWinClass(win.who);let cc=document.getElementById('centerCards');if(cc){ let els=cc.querySelectorAll('.card'); for(let i=0;i<els.length;i++) els[i].classList.add(winCls); }setTimeout(function(){center=[]; let winIdx=0; for(let i=0;i<players.length;i++) if(players[i]==win.who) winIdx=i; turn=winIdx; trick++;broadcast({type:'trickEnd',tricksWon:tricksWon,turn:turn,trick:trick,center:center});updateUI(); renderAll(); startTurnTimer(); if(trick>13){ setTimeout(endGameHost,500); } else { if(isBotPlayer(players[turn])) setTimeout(botPlay,700); }},700);}
 function endGameHost(){let roundEntries=[];for(let i=0;i<players.length;i++){let p=players[i]; let bid=bids[p]; let won=tricksWon[p]; let delta=0;if(won>=bid){delta=bid*10+(won-bid);scores[p]+=delta;extra[p]+=(won-bid);} else{delta=-bid*10;scores[p]+=delta;}roundEntries.push({round:gameNo,player:p,bid:bid,won:won,delta:delta,total:scores[p],bag:extra[p]});if(extra[p]>=10){scores[p]-=100;extra[p]-=10;}}historyLog=historyLog.concat(roundEntries);let nextGame=gameNo+1; broadcast({type:'gameOver',scores:scores,extra:extra,nextGame:nextGame,historyLog:historyLog});if(nextGame>15){showFinal();} else{gameNo=nextGame;showHistoryAuto();}}
-function showHistory(){clearHistoryTimer();renderHistory();document.getElementById('historyModal').classList.remove('hidden');let ht=document.getElementById('historyTimer'); if(ht) ht.style.display='none';}
-function closeHistory(){clearHistoryTimer();document.getElementById('historyModal').classList.add('hidden');}
-function showHistoryAuto(){renderHistory();document.getElementById('historyModal').classList.remove('hidden');startHistoryTimer();}
-function nextRoundStart(){clearHistoryTimer();closeHistory();if(isHost)hostStartGame();}
-function clearHistoryTimer(){if(historyTimer){clearInterval(historyTimer); historyTimer=null;} let ht=document.getElementById('historyTimer'); if(ht) ht.style.display='none';}
-function startHistoryTimer(){clearHistoryTimer(); historyTimeLeft=10; let ht=document.getElementById('historyTimer'); let btn=document.getElementById('nextRoundBtn'); if(ht){ht.style.display='block'; ht.innerText='⏳ Next Round in 10s...';} if(btn) btn.innerText='NEXT ROUND ▶ (10)'; historyTimer=setInterval(()=>{ historyTimeLeft--; if(ht) ht.innerText='⏳ Next Round in '+historyTimeLeft+'s...'; if(btn) btn.innerText='NEXT ROUND ▶ ('+historyTimeLeft+')'; if(historyTimeLeft<=0){ clearHistoryTimer(); if(isHost){ nextRoundStart(); } else { closeHistory(); } } },1000);}
+function showHistory(){renderHistory();document.getElementById('historyModal').classList.remove('hidden');}
+function closeHistory(){document.getElementById('historyModal').classList.add('hidden');}
+function showHistoryAuto(){renderHistory();document.getElementById('historyModal').classList.remove('hidden');}
+function nextRoundStart(){closeHistory();if(isHost){broadcast({type:'nextRound',gameNo:gameNo});hostStartGame();}}
 function renderHistory(){let html='<table style="width:100%;border-collapse:collapse;background:#fff;color:#000"><tr><th>Rnd</th><th>Player</th><th>Bid</th><th>Bane</th><th>+/-</th><th>Total</th><th>Bagh</th></tr>';if(historyLog.length===0){ html+='<tr><td colspan="7">Abhi koi round nahi</td></tr>'; }else{let rounds={};for(let e of historyLog){ if(!rounds[e.round]) rounds[e.round]=[]; rounds[e.round].push(e); }let sortedRounds=Object.keys(rounds).sort((a,b)=>a-b);for(let rnd of sortedRounds){let entries=rounds[rnd];for(let e of entries){html+='<tr style="border:1px solid #555"><td>'+e.round+'</td><td style="font-weight:700">'+e.player+'</td><td>'+e.bid+'</td><td>'+e.won+'</td><td>'+e.delta+'</td><td style="font-weight:800;color:#0e5a2f">'+e.total+'</td><td>'+e.bag+'</td></tr>';}html+='<tr style="background:#ffca28;color:#000"><td colspan="7">▶ Rnd '+rnd+' Overall: '+entries.map(x=>x.player+'- '+x.total+' pts +'+x.bag+' Bagh').join(' | ')+'</td></tr>';}}html+='</table>';document.getElementById('historyContent').innerHTML=html;}
-function showFinal(){clearHistoryTimer();document.getElementById('modal').classList.remove('hidden');let win=players[0],max=scores[win]||0;for(let i=1;i<players.length;i++){if((scores[players[i]]||0)>max){max=scores[players[i]];win=players[i];}}let div='';for(let i=0;i<players.length;i++){let p=players[i];div+='<div class="bidbox">'+p+': '+scores[p]+' pts Bag '+extra[p]+'</div>';}document.getElementById('modal').innerHTML='<div class="modalBox"><h3>🏆 Final Winner: '+win+'</h3><div>'+div+'</div><button class="btn bg" onclick="showHistory()">History</button><button class="btn by" onclick="location.reload()">Naya 15 Games</button></div>';}
+function showFinal(){document.getElementById('modal').classList.remove('hidden');let win=players[0],max=scores[win]||0;for(let i=1;i<players.length;i++){if((scores[players[i]]||0)>max){max=scores[players[i]];win=players[i];}}let div='';for(let i=0;i<players.length;i++){let p=players[i];div+='<div class="bidbox">'+p+': '+scores[p]+' pts Bag '+extra[p]+'</div>';}document.getElementById('modal').innerHTML='<div class="modalBox"><h3>🏆 Final Winner: '+win+'</h3><div>'+div+'</div><button class="btn bg" onclick="showHistory()">History</button><button class="btn by" onclick="location.reload()">Naya 15 Games</button></div>';}
 function toggleEmojiBar(){let bar=document.getElementById('emojiBar');bar.classList.toggle('open');}
 function sendEmoji(e){showEmojiLocal(myName, e);try{broadcast({type:'reaction', from:myName, emoji:e});}catch(err){} document.getElementById('emojiBar').classList.remove('open');}
 function showEmojiLocal(from, emoji){let myIdx=getMyIdx(); let pIdx=players.indexOf(from); let seat=(pIdx - myIdx +4)%4; let id=["A","B","C","D"][seat];let seatEl=document.getElementById('seat-'+id);if(!seatEl) return;let el=document.createElement('div');el.className='emojiReact';el.innerText=emoji;seatEl.appendChild(el);setTimeout(()=>{try{el.remove();}catch{}},2200);}
