@@ -432,7 +432,10 @@ let who=players[pIdx];
 if(who==null){ dealRestHost(); return; }
 if(who==myName){ showOvercallModal(who); }
 else if(isBotPlayer(who) && isHost){ setTimeout(botOvercall,600); }
-else if(isHost){ showToast(players[pIdx]+' ka overcall wait - 30s'); startTurnTimer(); }
+else if(isHost){
+  broadcast({type:'overcall',trump:trump,bids:bids,bidder:bidder,overcallOrder:overcallOrder,overcallIdx:overcallIdx});
+  showToast(players[pIdx]+' ka overcall wait - 30s'); startTurnTimer();
+}
 }
 function continueOvercall(){ startOvercallPhase(); }
 function botOvercall(){
